@@ -15,6 +15,11 @@ Polymer-based web components for tab
 			:host {
 				box-sizing: border-box;
 				display: none;
+				padding-top: 0.9rem;
+			}
+
+			:host([no-padding]) {
+				padding-top: 0;
 			}
 
 			:host([_selected]) {
@@ -34,6 +39,14 @@ Polymer-based web components for tab
 			},
 
 			properties: {
+
+				/**
+				 * Whether to exclude default padding from the panel.
+				 */
+				noPadding: {
+					type: Boolean,
+					reflectToAttribute: true
+				},
 
 				/**
 				 * Indicates the selected tab.
