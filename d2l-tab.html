@@ -1,0 +1,126 @@
+<link rel="import" href="../polymer/polymer.html">
+<link rel="import" href="../d2l-colors/d2l-colors.html">
+
+<!--
+`d2l-tab`
+Polymer-based web components for tab
+
+@demo demo/index.html
+-->
+
+<dom-module id="d2l-tab">
+
+	<template strip-whitespace>
+		<style>
+
+			:host {
+				display: inline-block;
+				box-sizing: border-box;
+				/*outline: none;*/
+			}
+
+			.d2l-tab-text {
+				padding: 0.5rem;
+			}
+
+			:host(:hover) {
+				cursor: pointer;
+			}
+
+			:host([selected]) .d2l-tab-selected-indicator {
+				border-top: 4px solid var(--d2l-color-celestine);
+				border-top-left-radius: 4px;
+				border-top-right-radius: 4px;
+			}
+
+		</style>
+		<div class="d2l-tab-text">[[text]]</div>
+		<div class="d2l-tab-selected-indicator"></div>
+	</template>
+
+	<script>
+		Polymer({
+			is: 'd2l-tab',
+
+			hostAttributes: {
+				'role': 'tab',
+				'tabindex': '-1'
+			},
+
+			properties: {
+
+				/**
+				 * Id of panel this tab controls.
+				 */
+				forPanel: {
+					type: String,
+					reflectToAttribute: true
+				},
+
+				/**
+				 * Indicates the selected tab.
+				 */
+				selected: {
+					type: Boolean,
+					observer: '_handleSelected',
+					reflectToAttribute: true
+				},
+
+				/**
+				 * Text for the tab.
+				 */
+				text: String
+
+			},
+
+			_keyCodes: {
+				ENTER: 13,
+				SPACE: 32
+			},
+
+			ready: function() {
+				this._handleClick = this._handleClick.bind(this);
+				this._handleKeyDown = this._handleKeyDown.bind(this);
+			},
+
+			attached: function() {
+				Polymer.RenderStatus.afterNextRender(this, function() {
+					this.addEventListener('click', this._handleClick);
+					this.addEventListener('keydown', this._handleKeyDown);
+				}.bind(this));
+			},
+
+			detached: function() {
+				this.removeEventListener('click', this._handleClick);
+				this.removeEventListener('keydown', this._handleKeyDown);
+			},
+
+			_handleClick: function() {
+				this.selected = true;
+			},
+
+			_handleKeyDown: function(e) {
+				if (e.keyCode !== this._keyCodes.ENTER && e.keyCode !== this._keyCodes.SPACE) {
+					return;
+				}
+				e.stopPropagation();
+				e.preventDefault();
+				this.selected = true;
+			},
+
+			_handleSelected: function(newValue) {
+				if (newValue) {
+					this.setAttribute('aria-selected', 'true');
+					this.dispatchEvent(new CustomEvent(
+						'd2l-tab-selected',
+						{bubbles: true, composed: false}
+					));
+				} else {
+					this.removeAttribute('aria-selected');
+				}
+			}
+
+		});
+	</script>
+
+</dom-module>

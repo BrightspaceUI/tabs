@@ -1,0 +1,61 @@
+<link rel="import" href="../polymer/polymer.html">
+
+<!--
+`d2l-tab-panel`
+Polymer-based web components for tab
+
+@demo demo/index.html
+-->
+
+<dom-module id="d2l-tab-panel">
+
+	<template strip-whitespace>
+		<style>
+
+			:host {
+				box-sizing: border-box;
+				display: none;
+			}
+
+			:host([_selected]) {
+				display: block;
+			}
+
+		</style>
+		<slot></slot>
+	</template>
+
+	<script>
+		Polymer({
+			is: 'd2l-tab-panel',
+
+			hostAttributes: {
+				'role': 'tabpanel'
+			},
+
+			properties: {
+
+				/**
+				 * Indicates the selected tab.
+				 */
+				_selected: {
+					type: Boolean,
+					reflectToAttribute: true
+				}
+
+			},
+
+			ready: function() {
+
+			},
+
+			attached: function() {
+			},
+
+			detached: function() {
+			}
+
+		});
+	</script>
+
+</dom-module>

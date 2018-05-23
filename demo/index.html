@@ -1,0 +1,73 @@
+<!doctype html>
+<html lang="en">
+	<head>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width, minimum-scale=1, initial-scale=1, user-scalable=yes">
+		<title>d2l-tabs demo</title>
+		<script src="../../webcomponentsjs/webcomponents-lite.js"></script>
+		<link rel="import" href="../../polymer/polymer.html">
+		<link rel="import" href="../../iron-demo-helpers/demo-pages-shared-styles.html">
+		<link rel="import" href="../../iron-demo-helpers/demo-snippet.html">
+		<link rel="import" href="../../d2l-typography/d2l-typography.html">
+		<link rel="import" href="../d2l-tabs.html">
+		<link rel="import" href="demo-components.html">
+		<custom-style>
+			<style is="custom-style" include="demo-pages-shared-styles"></style>
+		</custom-style>
+		<custom-style include="d2l-typography">
+			<style is="custom-style" include="d2l-typography"></style>
+		</custom-style>
+		<style>
+			html {
+				font-size: 20px;
+			}
+		</style>
+	</head>
+	<body unresolved class="d2l-typography">
+		<div class="vertical-section-container centered">
+
+			<h3>Basic Tabs</h3>
+
+			<demo-snippet>
+				<template>
+
+					<d2l-tabs>
+
+						<d2l-tab slot="tab" for-panel="p1" text="S17"></d2l-tab>
+						<d2l-tab-panel id="p1" slot="panel">Stuff for S17</d2l-tab-panel>
+
+						<d2l-tab slot="tab" for-panel="p2" text="F17"></d2l-tab>
+						<d2l-tab-panel id="p2" slot="panel">Stuff for F17</d2l-tab-panel>
+
+						<d2l-tab slot="tab" for-panel="p3" text="W18" style="display: none;"></d2l-tab>
+						<d2l-tab-panel id="p3" slot="panel">Stuff for W18</d2l-tab-panel>
+
+						<d2l-tab slot="tab" for-panel="p4" text="S18"></d2l-tab>
+						<d2l-tab-panel id="p4" slot="panel">Stuff for S18</d2l-tab-panel>
+
+					</d2l-tabs>
+
+
+				</template>
+			</demo-snippet>
+
+			<h3>Template-Based Tabs</h3>
+
+			<demo-snippet>
+				<template>
+
+					<a href="http://www.d2l.com">d2l 1</a>
+					<d2l-demo-templated-tabs></d2l-demo-templated-tabs>
+					<a href="http://www.d2l.com">d2l 2</a>
+
+				</template>
+			</demo-snippet>
+
+		</div>
+		<script>
+
+
+
+		</script>
+	</body>
+</html>
