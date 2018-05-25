@@ -3,6 +3,7 @@
 <link rel="import" href="../d2l-fastdom-import/fastdom.html">
 <link rel="import" href="../d2l-polymer-behaviors/d2l-id.html">
 <link rel="import" href="../d2l-polymer-behaviors/d2l-dom-focus.html">
+<link rel="import" href="../d2l-polymer-behaviors/d2l-focusable-arrowkeys-behavior.html">
 <link rel="import" href="d2l-tab.html">
 <link rel="import" href="d2l-tab-panel.html">
 
@@ -66,16 +67,12 @@ Polymer-based web components for tabs
 				'd2l-tab-selected': '_handleTabSelected'
 			},
 
-			_keyCodes: {
-				END: 35,
-				HOME: 36,
-				LEFT: 37,
-				RIGHT: 39
-			},
+			behaviors: [
+				D2L.PolymerBehaviors.FocusableArrowKeysBehavior
+			],
 
 			ready: function() {
 				this._handleDomChanges = this._handleDomChanges.bind(this);
-				this._handleTabKeyDown = this._handleTabKeyDown.bind(this);
 				this._handleTabFocus = this._handleTabFocus.bind(this);
 				this._handleFocusTrapStart = this._handleFocusTrapStart.bind(this);
 				this._handleFocusTrapEnd = this._handleFocusTrapEnd.bind(this);
@@ -85,7 +82,12 @@ Polymer-based web components for tabs
 				Polymer.RenderStatus.afterNextRender(this, function() {
 					var tabsList = Polymer.dom(this.root).querySelector('.d2l-tabs-container-list');
 					Polymer.dom(this).observeNodes(this._handleDomChanges);
-					tabsList.addEventListener('keydown', this._handleTabKeyDown);
+
+					this.arrowKeyFocusablesContainer = tabsList;
+					this.arrowKeyFocusablesProvider = function() {
+						return this._getFocusableTabs(this._tabs)
+					}.bind(this);
+
 					tabsList.addEventListener('focus', this._handleTabFocus, true);
 					Polymer.dom(this.root).querySelector('.d2l-tabs-focus-start').addEventListener('focus', this._handleFocusTrapStart);
 					Polymer.dom(this.root).querySelector('.d2l-tabs-focus-end').addEventListener('focus', this._handleFocusTrapEnd);
@@ -94,34 +96,9 @@ Polymer-based web components for tabs
 
 			detached: function() {
 				var tabsList = Polymer.dom(this.root).querySelector('.d2l-tabs-container-list');
-				tabsList.removeEventListener('keydown', this._handleTabKeyDown);
 				tabsList.removeEventListener('focus', this._handleTabFocus, true);
 				Polymer.dom(this.root).querySelector('.d2l-tabs-focus-start').removeEventListener('focus', this._handleFocusTrapStart);
 				Polymer.dom(this.root).querySelector('.d2l-tabs-focus-end').removeEventListener('focus', this._handleFocusTrapEnd);
-			},
-
-			_focusFirst: function() {
-				this._tryGetNextFocusable().then(function(tab) {
-					if (tab) fastdom.mutate(function() { tab.focus(); });
-				});
-			},
-
-			_focusLast: function() {
-				this._tryGetPreviousFocusable().then(function(tab) {
-					if (tab) fastdom.mutate(function() { tab.focus(); });
-				});
-			},
-
-			_focusNext: function(tab) {
-				this._tryGetNextFocusable(tab).then(function(tab) {
-					tab ? fastdom.mutate(function() { tab.focus(); }) : this._focusFirst();
-				}.bind(this));
-			},
-
-			_focusPrevious: function(tab) {
-				this._tryGetPreviousFocusable(tab).then(function(tab) {
-					tab ? fastdom.mutate(function() { tab.focus(); }) : this._focusLast();
-				}.bind(this));
 			},
 
 			_focusSelected: function() {
@@ -180,22 +157,6 @@ Polymer-based web components for tabs
 				if (e.target.tagName === 'D2L-TAB' && !e.target.selected) {
 					console.log('auto-activate:...', e.target); //eslint-disable-line no-console
 				}
-			},
-
-			_handleTabKeyDown: function(e) {
-				if (e.keyCode === this._keyCodes.LEFT) {
-					this._focusPrevious(e.target);
-				} else if (e.keyCode === this._keyCodes.RIGHT) {
-					this._focusNext(e.target);
-				} else if (e.keyCode === this._keyCodes.HOME) {
-					this._focusFirst();
-				} else if (e.keyCode === this._keyCodes.END) {
-					this._focusLast();
-				} else {
-					return;
-				}
-				e.stopPropagation();
-				e.preventDefault();
 			},
 
 			_handleTabSelected: function(e) {
@@ -273,50 +234,6 @@ Polymer-based web components for tabs
 					var panel = this.querySelector('#' + selectedTab.forPanel);
 					panel._selected = true;
 				}.bind(this));
-			},
-
-			_tryGetNextFocusable: function(tab) {
-				return this._getFocusableTabs(this._tabs).then(
-					function(focusableTabs) {
-
-						if (!focusableTabs || focusableTabs.length === 0) {
-							return Promise.resolve();
-						}
-						if (!tab) {
-							return Promise.resolve(focusableTabs[0]);
-						}
-
-						var index = focusableTabs.indexOf(tab);
-						if (index === focusableTabs.length - 1) {
-							return Promise.resolve();
-						}
-
-						return Promise.resolve(focusableTabs[index + 1]);
-
-					}
-				);
-			},
-
-			_tryGetPreviousFocusable: function(tab) {
-				return this._getFocusableTabs(this._tabs).then(
-					function(focusableTabs) {
-
-						if (!focusableTabs || focusableTabs.length === 0) {
-							return Promise.resolve();
-						}
-						if (!tab) {
-							return Promise.resolve(focusableTabs[focusableTabs.length - 1]);
-						}
-
-						var index = focusableTabs.indexOf(tab);
-						if (index === 0) {
-							return Promise.resolve();
-						}
-
-						return Promise.resolve(focusableTabs[index - 1]);
-
-					}
-				);
 			}
 
 		});
