@@ -31,7 +31,7 @@
 			<demo-snippet>
 				<template>
 
-					<d2l-tabs>
+					<d2l-tabs no-auto-select>
 
 						<d2l-tab slot="tab" for-panel="p1" text="S17"></d2l-tab>
 						<d2l-tab-panel id="p1" slot="panel">Stuff for S17</d2l-tab-panel>
@@ -56,9 +56,9 @@
 			<demo-snippet>
 				<template>
 
-					<a href="http://www.d2l.com">d2l 1</a>
+					<a href="http://www.d2l.com" style="display: inline-block; margin-bottom: 1rem;">d2l 1</a>
 					<d2l-demo-templated-tabs></d2l-demo-templated-tabs>
-					<a href="http://www.d2l.com">d2l 2</a>
+					<a href="http://www.d2l.com" style="display: inline-block; margin-top: 1rem;">d2l 2</a>
 
 				</template>
 			</demo-snippet>
@@ -66,6 +66,9 @@
 		</div>
 		<script>
 
+			document.body.addEventListener('d2l-tab-selected', function(e) {
+				console.log('tab selected!', e);
+			});
 
 
 		</script>

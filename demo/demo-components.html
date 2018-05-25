@@ -5,13 +5,17 @@
 <dom-module id="d2l-demo-templated-tabs">
 	<template>
 		<d2l-tabs>
+
 			<template slot="tab" items="{{tabs}}" is="dom-repeat">
 				<d2l-tab slot="tab" for-panel="{{item.id}}" text="{{item.text}}"></d2l-tab>
 			</template>
+
 			<d2l-button-subtle slot="ext" text="Custom Search" icon="d2l-tier1:search"></d2l-button-subtle>
+
 			<template slot="panel" items="{{tabs}}" is="dom-repeat">
 				<d2l-tab-panel slot="panel" id="{{item.id}}">{{item.content}}<a href="http://www.google.com">google</a></d2l-tab-panel>
 			</template>
+
 		</d2l-tabs>
 	</template>
 	<script>

@@ -25,8 +25,9 @@ Polymer-based web components for tabs
 			}
 
 			.d2l-tabs-container {
-				border-bottom: 1px solid var(--d2l-color-mica);
+				border-bottom: 1px solid var(--d2l-color-gypsum);
 				display: flex;
+				padding-bottom: 4px;
 				width: 100%;
 				@apply --d2l-body-compact-text;
 			}
@@ -42,7 +43,9 @@ Polymer-based web components for tabs
 		</style>
 		<div class="d2l-tabs-container">
 			<div class="d2l-tabs-container-list">
-				<span class="d2l-tabs-focus-start" tabindex="0"></span><slot name="tab"></slot><span class="d2l-tabs-focus-end" tabindex="0"></span>
+				<span class="d2l-tabs-focus-start" tabindex="0"></span>
+				<slot name="tab"></slot>
+				<span class="d2l-tabs-focus-end" tabindex="0"></span>
 			</div>
 			<div class="d2l-tabs-container-ext"><slot name="ext"></slot></div>
 		</div>
@@ -60,6 +63,13 @@ Polymer-based web components for tabs
 			},
 
 			properties: {
+
+				/**
+				 * Indicates whether tabs are automatically activated on focus.
+				 */
+				noAutoSelect: {
+					type: Boolean
+				}
 
 			},
 
@@ -154,8 +164,8 @@ Polymer-based web components for tabs
 			},
 
 			_handleTabFocus: function(e) {
-				if (e.target.tagName === 'D2L-TAB' && !e.target.selected) {
-					console.log('auto-activate:...', e.target); //eslint-disable-line no-console
+				if (!this.noAutoSelect && e.target.tagName === 'D2L-TAB' && !e.target.selected) {
+					e.target.selected = true;
 				}
 			},
 
