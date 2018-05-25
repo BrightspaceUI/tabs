@@ -136,7 +136,11 @@ Polymer-based web components for tab
 					this.setAttribute('aria-selected', 'true');
 					this.dispatchEvent(new CustomEvent(
 						'd2l-tab-selected',
-						{bubbles: true, composed: false}
+						{
+							bubbles: true,
+							composed: true,
+							detail: { panel: (this.forPanel ? Polymer.dom(this).parentNode.querySelector('#' + this.forPanel) : null) }
+						}
 					));
 				} else {
 					this.removeAttribute('aria-selected');
