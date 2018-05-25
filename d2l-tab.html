@@ -1,0 +1,153 @@
+<link rel="import" href="../polymer/polymer.html">
+<link rel="import" href="../d2l-colors/d2l-colors.html">
+
+<!--
+`d2l-tab`
+Polymer-based web components for tab
+
+@demo demo/index.html
+-->
+
+<dom-module id="d2l-tab">
+
+	<template strip-whitespace>
+		<style>
+
+			:host {
+				border-radius: 0.3rem;
+				border: 1px solid transparent;
+				box-sizing: border-box;
+				display: inline-block;
+				outline: none;
+				position: relative;
+				transition: box-shadow 0.2s;
+			}
+
+			.d2l-tab-text {
+				padding: calc(0.6rem - 5px) 0.6rem;
+			}
+
+			.d2l-tab-selected-indicator {
+				border-top: 4px solid var(--d2l-color-celestine);
+				border-top-left-radius: 4px;
+				border-top-right-radius: 4px;
+				display: none;
+				margin-top: 1px;
+				position: absolute;
+				width: 100%;
+			}
+
+			:host(:hover) {
+				color: var(--d2l-color-celestine);
+				cursor: pointer;
+			}
+
+			:host(:focus) {
+				background-color: var(--d2l-color-gypsum);
+				@apply --d2l-button-focus-plus-border;
+			}
+
+			:host([selected]:hover) {
+				color: inherit;
+				cursor: default;
+			}
+
+			:host([selected]) .d2l-tab-selected-indicator {
+				display: block;
+			}
+
+		</style>
+		<div class="d2l-tab-text">[[text]]</div>
+		<div class="d2l-tab-selected-indicator"></div>
+	</template>
+
+	<script>
+		Polymer({
+			is: 'd2l-tab',
+
+			hostAttributes: {
+				'role': 'tab',
+				'tabindex': '-1'
+			},
+
+			properties: {
+
+				/**
+				 * Id of panel this tab controls.
+				 */
+				forPanel: {
+					type: String,
+					reflectToAttribute: true
+				},
+
+				/**
+				 * Indicates the selected tab.
+				 */
+				selected: {
+					type: Boolean,
+					observer: '_handleSelected',
+					reflectToAttribute: true
+				},
+
+				/**
+				 * Text for the tab.
+				 */
+				text: String
+
+			},
+
+			_keyCodes: {
+				ENTER: 13,
+				SPACE: 32
+			},
+
+			ready: function() {
+				this._handleClick = this._handleClick.bind(this);
+				this._handleKeyDown = this._handleKeyDown.bind(this);
+			},
+
+			attached: function() {
+				Polymer.RenderStatus.afterNextRender(this, function() {
+					this.addEventListener('click', this._handleClick);
+					this.addEventListener('keydown', this._handleKeyDown);
+				}.bind(this));
+			},
+
+			detached: function() {
+				this.removeEventListener('click', this._handleClick);
+				this.removeEventListener('keydown', this._handleKeyDown);
+			},
+
+			_handleClick: function() {
+				this.selected = true;
+			},
+
+			_handleKeyDown: function(e) {
+				if (e.keyCode !== this._keyCodes.ENTER && e.keyCode !== this._keyCodes.SPACE) {
+					return;
+				}
+				e.stopPropagation();
+				e.preventDefault();
+				this.selected = true;
+			},
+
+			_handleSelected: function(newValue) {
+				if (newValue) {
+					this.setAttribute('aria-selected', 'true');
+					this.dispatchEvent(new CustomEvent(
+						'd2l-tab-selected',
+						{
+							bubbles: true,
+							composed: true,
+							detail: { panel: (this.forPanel ? Polymer.dom(this).parentNode.querySelector('#' + this.forPanel) : null) }
+						}
+					));
+				} else {
+					this.removeAttribute('aria-selected');
+				}
+			}
+
+		});
+	</script>
+
+</dom-module>

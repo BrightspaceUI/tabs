@@ -1,0 +1,64 @@
+<link rel="import" href="../polymer/polymer.html">
+
+<!--
+`d2l-tab-panel`
+Polymer-based web components for tab
+
+@demo demo/index.html
+-->
+
+<dom-module id="d2l-tab-panel">
+
+	<template strip-whitespace>
+		<style>
+
+			:host {
+				box-sizing: border-box;
+				display: none;
+				margin: 1.2rem 0;
+			}
+
+			:host([no-padding]) {
+				margin: 0;
+			}
+
+			:host([_selected]) {
+				display: block;
+			}
+
+		</style>
+		<slot></slot>
+	</template>
+
+	<script>
+		Polymer({
+			is: 'd2l-tab-panel',
+
+			hostAttributes: {
+				'role': 'tabpanel'
+			},
+
+			properties: {
+
+				/**
+				 * Whether to exclude default padding from the panel.
+				 */
+				noPadding: {
+					type: Boolean,
+					reflectToAttribute: true
+				},
+
+				/**
+				 * Indicates the selected tab.
+				 */
+				_selected: {
+					type: Boolean,
+					reflectToAttribute: true
+				}
+
+			}
+
+		});
+	</script>
+
+</dom-module>

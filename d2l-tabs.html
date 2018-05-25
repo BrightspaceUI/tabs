@@ -1,0 +1,252 @@
+<link rel="import" href="../polymer/polymer.html">
+<link rel="import" href="../d2l-colors/d2l-colors.html">
+<link rel="import" href="../d2l-fastdom-import/fastdom.html">
+<link rel="import" href="../d2l-polymer-behaviors/d2l-id.html">
+<link rel="import" href="../d2l-polymer-behaviors/d2l-dom-focus.html">
+<link rel="import" href="../d2l-polymer-behaviors/d2l-focusable-arrowkeys-behavior.html">
+<link rel="import" href="d2l-tab.html">
+<link rel="import" href="d2l-tab-panel.html">
+
+<!--
+`d2l-tabs`
+Polymer-based web components for tabs
+
+@demo demo/index.html
+-->
+
+<dom-module id="d2l-tabs">
+
+	<template strip-whitespace>
+		<style>
+
+			:host {
+				box-sizing: border-box;
+				display: block;
+			}
+
+			.d2l-tabs-container {
+				border-bottom: 1px solid var(--d2l-color-gypsum);
+				display: flex;
+				padding-bottom: 4px;
+				width: 100%;
+				@apply --d2l-body-compact-text;
+			}
+
+			.d2l-tabs-container-list {
+				flex: auto;
+			}
+
+			.d2l-tabs-container-ext {
+				flex: none;
+			}
+
+		</style>
+		<div class="d2l-tabs-container">
+			<div class="d2l-tabs-container-list">
+				<span class="d2l-tabs-focus-start" tabindex="0"></span>
+				<slot name="tab"></slot>
+				<span class="d2l-tabs-focus-end" tabindex="0"></span>
+			</div>
+			<div class="d2l-tabs-container-ext"><slot name="ext"></slot></div>
+		</div>
+		<div>
+			<slot name="panel"></slot>
+		</div>
+	</template>
+
+	<script>
+		Polymer({
+			is: 'd2l-tabs',
+
+			hostAttributes: {
+				'role': 'tablist'
+			},
+
+			properties: {
+
+				/**
+				 * Indicates whether tabs are automatically activated on focus.
+				 */
+				noAutoSelect: {
+					type: Boolean
+				}
+
+			},
+
+			listeners: {
+				'd2l-tab-selected': '_handleTabSelected'
+			},
+
+			behaviors: [
+				D2L.PolymerBehaviors.FocusableArrowKeysBehavior
+			],
+
+			ready: function() {
+				this._handleDomChanges = this._handleDomChanges.bind(this);
+				this._handleTabFocus = this._handleTabFocus.bind(this);
+				this._handleFocusTrapStart = this._handleFocusTrapStart.bind(this);
+				this._handleFocusTrapEnd = this._handleFocusTrapEnd.bind(this);
+			},
+
+			attached: function() {
+				Polymer.RenderStatus.afterNextRender(this, function() {
+					var tabsList = Polymer.dom(this.root).querySelector('.d2l-tabs-container-list');
+					Polymer.dom(this).observeNodes(this._handleDomChanges);
+
+					this.arrowKeyFocusablesContainer = tabsList;
+					this.arrowKeyFocusablesProvider = function() {
+						return this._getFocusableTabs(this._tabs)
+					}.bind(this);
+
+					tabsList.addEventListener('focus', this._handleTabFocus, true);
+					Polymer.dom(this.root).querySelector('.d2l-tabs-focus-start').addEventListener('focus', this._handleFocusTrapStart);
+					Polymer.dom(this.root).querySelector('.d2l-tabs-focus-end').addEventListener('focus', this._handleFocusTrapEnd);
+				}.bind(this));
+			},
+
+			detached: function() {
+				var tabsList = Polymer.dom(this.root).querySelector('.d2l-tabs-container-list');
+				tabsList.removeEventListener('focus', this._handleTabFocus, true);
+				Polymer.dom(this.root).querySelector('.d2l-tabs-focus-start').removeEventListener('focus', this._handleFocusTrapStart);
+				Polymer.dom(this.root).querySelector('.d2l-tabs-focus-end').removeEventListener('focus', this._handleFocusTrapEnd);
+			},
+
+			_focusSelected: function() {
+				var selectedTab = this.querySelector('d2l-tab[selected]');
+				if (selectedTab) {
+					fastdom.mutate(function() {
+						selectedTab.focus();
+					});
+				}
+			},
+
+			_getFocusableTabs: function(tabs) {
+				if (!tabs || tabs.length === 0) {
+					return Promise.resolve([]);
+				}
+				return new Promise(function(resolve) {
+					fastdom.measure(function() {
+						var focusableTabs = [];
+						for (var i = 0; i < tabs.length; i++) {
+							if (window.getComputedStyle(tabs[i], null).getPropertyValue('display') !== 'none') {
+								focusableTabs.push(tabs[i]);
+							}
+						}
+						resolve(focusableTabs);
+					});
+				});
+			},
+
+			_getTabs: function() {
+				var children = this.getEffectiveChildren();
+				var tabs = children.filter(function(child) {
+					return (child.tagName === 'D2L-TAB');
+				});
+				return tabs;
+			},
+
+			_handleFocusTrapStart: function(e) {
+				if (e.relatedTarget && e.relatedTarget.tagName === 'D2L-TAB') {
+					var previousFocusable = D2L.Dom.Focus.getPreviousFocusable(e.target, false);
+					if (previousFocusable) fastdom.mutate(function() { previousFocusable.focus(); });
+				} else {
+					this._focusSelected();
+				}
+			},
+
+			_handleFocusTrapEnd: function(e) {
+				if (e.relatedTarget && e.relatedTarget.tagName !== 'D2L-TAB') {
+					this._focusSelected();
+				} else {
+					var nextFocusable = D2L.Dom.Focus.getNextFocusable(e.target, false);
+					if (nextFocusable) fastdom.mutate(function() { nextFocusable.focus(); });
+				}
+			},
+
+			_handleTabFocus: function(e) {
+				if (!this.noAutoSelect && e.target.tagName === 'D2L-TAB' && !e.target.selected) {
+					e.target.selected = true;
+				}
+			},
+
+			_handleTabSelected: function(e) {
+				this._showPanel(e.target);
+			},
+
+			_handleDomChanges: function() {
+
+				var children = this.getEffectiveChildren();
+				fastdom.mutate(function() {
+
+					var tabs = [];
+
+					for (var i = 0; i < children.length; i++) {
+
+						var elem = children[i];
+						var tagName = elem.tagName;
+
+						if (tagName === 'D2L-TAB') {
+
+							tabs.push(elem);
+
+							if (elem.hasAttribute('for-panel')) {
+								var panel = this.querySelector('#' + elem.getAttribute('for-panel'));
+								if (panel) {
+									if (!elem.hasAttribute('aria-controls')) {
+										elem.setAttribute('aria-controls', elem.getAttribute('for-panel'));
+									}
+									if (!panel.hasAttribute('aria-labelledby')) {
+										if (elem.id.length === 0) {
+											elem.id = D2L.Id.getUniqueId();
+										}
+										panel.setAttribute('aria-labelledby', elem.id);
+									}
+								} else if (!panel && elem.hasAttribute('aria-controls')) {
+									elem.removeAttribute('aria-controls');
+								}
+							}
+
+						} else if (tagName === 'D2L-TAB-PANEL') {
+							if (elem.hasAttribute('aria-labelledby')) {
+								var tab = this.querySelector('#' + elem.getAttribute('aria-labelledby'));
+								if (!tab) {
+									elem.removeAttribute('aria-labelledby');
+								}
+							}
+						}
+					}
+
+					this._tabs = tabs;
+					if (!this._initialized) {
+						this._initialized = true;
+						var selectedTab = this.querySelector('d2l-tab[selected]');
+						if (selectedTab) {
+							this._showPanel(selectedTab);
+						} else if (tabs.length > 0) {
+							tabs[0].selected = true;
+						}
+					}
+
+				}.bind(this));
+
+			},
+
+			_showPanel: function(selectedTab) {
+				if (!this._initialized) return;
+				fastdom.mutate(function() {
+					for (var i = 0; i < this._tabs.length; i++) {
+						var tab = this._tabs[i];
+						if (tab.selected && tab !== selectedTab) {
+							tab.selected = false;
+							this.querySelector('#' + tab.forPanel)._selected = false;
+						}
+					}
+					var panel = this.querySelector('#' + selectedTab.forPanel);
+					panel._selected = true;
+				}.bind(this));
+			}
+
+		});
+	</script>
+
+</dom-module>
