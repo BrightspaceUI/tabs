@@ -68,6 +68,19 @@ Include the [webcomponents.js](http://webcomponents.org/polyfills/) "lite" polyf
 </d2l-tabs>
 ```
 
+Alternatively, `d2l-tab` and `d2l-tab-panel` can be specified with `dom-repeat`.
+
+```html
+<d2l-tabs>
+	<template slot="tab" items="{{tabs}}" is="dom-repeat">
+		<d2l-tab slot="tab" for-panel="{{item.id}}" text="{{item.text}}"></d2l-tab>
+	</template>
+	<template slot="panel" items="{{tabs}}" is="dom-repeat">
+		<d2l-tab-panel slot="panel" id="{{item.id}}">{{item.content}}</d2l-tab-panel>
+	</template>
+</d2l-tabs>
+```
+
 #### Events
 
 The `d2l-tab` component dispatches the `d2l-tab-selected` event when the tab is activated.
