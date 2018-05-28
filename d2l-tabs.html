@@ -95,7 +95,7 @@ Polymer-based web components for tabs
 
 					this.arrowKeyFocusablesContainer = tabsList;
 					this.arrowKeyFocusablesProvider = function() {
-						return this._getFocusableTabs(this._tabs)
+						return this._getFocusableTabs(this._tabs);
 					}.bind(this);
 
 					tabsList.addEventListener('focus', this._handleTabFocus, true);
