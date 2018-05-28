@@ -139,7 +139,10 @@ Polymer-based web components for tab
 						{
 							bubbles: true,
 							composed: true,
-							detail: { panel: (this.forPanel ? Polymer.dom(this).parentNode.querySelector('#' + this.forPanel) : null) }
+							detail: {
+								panel: (this.forPanel ? Polymer.dom(this).parentNode.querySelector('#' + this.forPanel) : null),
+								tab: this
+							}
 						}
 					));
 				} else {
