@@ -42,15 +42,13 @@ Polymer-based web components for tabs
 
 		</style>
 		<div class="d2l-tabs-container">
-			<div class="d2l-tabs-container-list">
-				<span class="d2l-tabs-focus-start" tabindex="0"></span>
-				<slot name="tab"></slot>
-				<span class="d2l-tabs-focus-end" tabindex="0"></span>
-			</div>
+			<span class="d2l-tabs-focus-start" tabindex="0"></span>
+			<div class="d2l-tabs-container-list"></div>
+			<span class="d2l-tabs-focus-end" tabindex="0"></span>
 			<div class="d2l-tabs-container-ext"><slot name="ext"></slot></div>
 		</div>
 		<div>
-			<slot name="panel"></slot>
+			<slot></slot>
 		</div>
 	</template>
 
@@ -74,7 +72,8 @@ Polymer-based web components for tabs
 			},
 
 			listeners: {
-				'd2l-tab-selected': '_handleTabSelected'
+				'd2l-tab-selected': '_handleTabSelected',
+				'd2l-tab-panel-selected': '_handleTabPanelSelected'
 			},
 
 			behaviors: [
@@ -112,7 +111,7 @@ Polymer-based web components for tabs
 			},
 
 			_focusSelected: function() {
-				var selectedTab = this.querySelector('d2l-tab[selected]');
+				var selectedTab = Polymer.dom(this.root).querySelector('d2l-tab[aria-selected]');
 				if (selectedTab) {
 					fastdom.mutate(function() {
 						selectedTab.focus();
@@ -135,14 +134,6 @@ Polymer-based web components for tabs
 						resolve(focusableTabs);
 					});
 				});
-			},
-
-			_getTabs: function() {
-				var children = this.getEffectiveChildren();
-				var tabs = children.filter(function(child) {
-					return (child.tagName === 'D2L-TAB');
-				});
-				return tabs;
 			},
 
 			_handleFocusTrapStart: function(e) {
@@ -170,80 +161,85 @@ Polymer-based web components for tabs
 			},
 
 			_handleTabSelected: function(e) {
-				this._showPanel(e.target);
-			},
 
-			_handleDomChanges: function() {
+				e.stopPropagation();
 
-				var children = this.getEffectiveChildren();
-				fastdom.mutate(function() {
+				var selectedTab = Polymer.dom(e).rootTarget;
+				var selectedPanel = this.querySelector('#' + selectedTab.getAttribute('aria-controls'));
 
-					var tabs = [];
+				selectedPanel.selected = true;
 
-					for (var i = 0; i < children.length; i++) {
-
-						var elem = children[i];
-						var tagName = elem.tagName;
-
-						if (tagName === 'D2L-TAB') {
-
-							tabs.push(elem);
-
-							if (elem.hasAttribute('for-panel')) {
-								var panel = this.querySelector('#' + elem.getAttribute('for-panel'));
-								if (panel) {
-									if (!elem.hasAttribute('aria-controls')) {
-										elem.setAttribute('aria-controls', elem.getAttribute('for-panel'));
-									}
-									if (!panel.hasAttribute('aria-labelledby')) {
-										if (elem.id.length === 0) {
-											elem.id = D2L.Id.getUniqueId();
-										}
-										panel.setAttribute('aria-labelledby', elem.id);
-									}
-								} else if (!panel && elem.hasAttribute('aria-controls')) {
-									elem.removeAttribute('aria-controls');
-								}
-							}
-
-						} else if (tagName === 'D2L-TAB-PANEL') {
-							if (elem.hasAttribute('aria-labelledby')) {
-								var tab = this.querySelector('#' + elem.getAttribute('aria-labelledby'));
-								if (!tab) {
-									elem.removeAttribute('aria-labelledby');
-								}
-							}
-						}
-					}
-
-					this._tabs = tabs;
-					if (!this._initialized) {
-						this._initialized = true;
-						var selectedTab = this.querySelector('d2l-tab[selected]');
-						if (selectedTab) {
-							this._showPanel(selectedTab);
-						} else if (tabs.length > 0) {
-							tabs[0].selected = true;
-						}
-					}
-
-				}.bind(this));
-
-			},
-
-			_showPanel: function(selectedTab) {
-				if (!this._initialized) return;
 				fastdom.mutate(function() {
 					for (var i = 0; i < this._tabs.length; i++) {
 						var tab = this._tabs[i];
 						if (tab.selected && tab !== selectedTab) {
 							tab.selected = false;
-							this.querySelector('#' + tab.forPanel)._selected = false;
+							this.querySelector('#' + tab.getAttribute('aria-controls')).selected = false;
 						}
 					}
-					var panel = this.querySelector('#' + selectedTab.forPanel);
-					panel._selected = true;
 				}.bind(this));
+
+			},
+
+			_handleTabPanelSelected: function(e) {
+				var panel = Polymer.dom(e).rootTarget;
+				var tab = Polymer.dom(this.root).querySelector('[aria-controls="' + panel.id + '"]');
+				if (tab) {
+					tab.selected = true;
+				}
+			},
+
+			_handleDomChanges: function(info) {
+
+				var panels = this.getEffectiveChildren();
+
+				fastdom.mutate(function() {
+
+					for (var i = 0; i < info.removedNodes.length; i++) {
+						var removedNode = info.removedNodes[i];
+						if (removedNode.tagName === 'D2L-TAB-PANEL' && removedNode.id.length > 0) {
+							var tabToRemove = Polymer.dom(this.root).querySelector('[aria-controls="' + removedNode.id + '"]');
+							tabToRemove.parentNode.removeChild(tabToRemove);
+						}
+					}
+
+					var tabsList = Polymer.dom(this.root).querySelector('.d2l-tabs-container-list');
+					var hasSelectedTab = false;
+
+					for (var j = 0; j < info.addedNodes.length; j++) {
+						if (info.addedNodes[j].tagName === 'D2L-TAB-PANEL') {
+
+							var panel = info.addedNodes[j];
+							if (panel.id.length === 0) {
+								panel.id = D2L.Id.getUniqueId();
+							}
+
+							var panelIndex = panels.indexOf(panel);
+
+							var tab = document.createElement('d2l-tab');
+							tab.setAttribute('aria-controls', panel.id);
+							tab.selected = panel.selected;
+							tab.text = panel.text;
+							if (tab.selected) hasSelectedTab = true;
+
+							if (panelIndex >= tabsList.children.length) {
+								tabsList.appendChild(tab);
+							} else {
+								tabsList.insertBefore(tab, tabsList.children[panelIndex]);
+							}
+
+						}
+					}
+
+					this._tabs = Array.prototype.slice.call(tabsList.querySelectorAll('[tabindex]'));
+
+					if (!this._initialized && !hasSelectedTab) {
+						this._initialized = true;
+						this._tabs[0].selected = true;
+					}
+
+				}.bind(this));
+
 			}
 
 		});
