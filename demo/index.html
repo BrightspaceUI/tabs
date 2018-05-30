@@ -21,6 +21,10 @@
 			html {
 				font-size: 20px;
 			}
+			button {
+				display: inline-block;
+				width: 150px;
+			}
 		</style>
 	</head>
 	<body unresolved class="d2l-typography">
@@ -28,25 +32,20 @@
 
 			<h3>Basic Tabs</h3>
 
+			<div style="margin-bottom: 20px;">
+				<button id="insert">Insert Panel</button>
+				<button id="select">Select Panel</button>
+			</div>
+
 			<demo-snippet>
 				<template>
 
 					<d2l-tabs no-auto-select>
-
-						<d2l-tab slot="tab" for-panel="p1" text="S17"></d2l-tab>
-						<d2l-tab-panel id="p1" slot="panel">Stuff for S17</d2l-tab-panel>
-
-						<d2l-tab slot="tab" for-panel="p2" text="F17"></d2l-tab>
-						<d2l-tab-panel id="p2" slot="panel">Stuff for F17</d2l-tab-panel>
-
-						<d2l-tab slot="tab" for-panel="p3" text="W18" style="display: none;"></d2l-tab>
-						<d2l-tab-panel id="p3" slot="panel">Stuff for W18</d2l-tab-panel>
-
-						<d2l-tab slot="tab" for-panel="p4" text="S18"></d2l-tab>
-						<d2l-tab-panel id="p4" slot="panel">Stuff for S18</d2l-tab-panel>
-
+						<d2l-tab-panel text="S17">Stuff for S17</d2l-tab-panel>
+						<d2l-tab-panel text="F17" selected>Stuff for F17</d2l-tab-panel>
+						<d2l-tab-panel text="W18">Stuff for W18</d2l-tab-panel>
+						<d2l-tab-panel text="S18">Stuff for S18</d2l-tab-panel>
 					</d2l-tabs>
-
 
 				</template>
 			</demo-snippet>
@@ -66,7 +65,18 @@
 		</div>
 		<script>
 
-			document.body.addEventListener('d2l-tab-selected', function(e) {
+			document.querySelector('#insert').addEventListener('click', function() {
+				var panel = document.createElement('d2l-tab-panel');
+				panel.text = 'new panel';
+				Polymer.dom(document.querySelector('d2l-tabs'))
+					.insertBefore(panel, document.querySelector('d2l-tab-panel[text="W18"]'));
+			});
+
+			document.querySelector('#select').addEventListener('click', function() {
+				document.querySelector('d2l-tab-panel[text="S18"]').selected = true;
+			});
+
+			document.body.addEventListener('d2l-tab-panel-selected', function(e) {
 				console.log('tab selected!', e);
 			});
 

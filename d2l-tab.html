@@ -1,4 +1,5 @@
 <link rel="import" href="../polymer/polymer.html">
+<link rel="import" href="../d2l-button/d2l-button-shared-styles.html">
 <link rel="import" href="../d2l-colors/d2l-colors.html">
 
 <!--
@@ -47,12 +48,12 @@ Polymer-based web components for tab
 				@apply --d2l-button-focus-plus-border;
 			}
 
-			:host([selected]:hover) {
+			:host([aria-selected]:hover) {
 				color: inherit;
 				cursor: default;
 			}
 
-			:host([selected]) .d2l-tab-selected-indicator {
+			:host([aria-selected]) .d2l-tab-selected-indicator {
 				display: block;
 			}
 
@@ -73,20 +74,11 @@ Polymer-based web components for tab
 			properties: {
 
 				/**
-				 * Id of panel this tab controls.
-				 */
-				forPanel: {
-					type: String,
-					reflectToAttribute: true
-				},
-
-				/**
 				 * Indicates the selected tab.
 				 */
 				selected: {
 					type: Boolean,
-					observer: '_handleSelected',
-					reflectToAttribute: true
+					observer: '_handleSelected'
 				},
 
 				/**
@@ -135,15 +127,7 @@ Polymer-based web components for tab
 				if (newValue) {
 					this.setAttribute('aria-selected', 'true');
 					this.dispatchEvent(new CustomEvent(
-						'd2l-tab-selected',
-						{
-							bubbles: true,
-							composed: true,
-							detail: {
-								panel: (this.forPanel ? Polymer.dom(this).parentNode.querySelector('#' + this.forPanel) : null),
-								tab: this
-							}
-						}
+						'd2l-tab-selected', { bubbles: true, composed: true }
 					));
 				} else {
 					this.removeAttribute('aria-selected');
