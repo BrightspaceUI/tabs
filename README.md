@@ -71,9 +71,9 @@ Alternatively, `d2l-tab` and `d2l-tab-panel` can be specified with `dom-repeat`.
 
 ```html
 <d2l-tabs>
-	<template items="{{tabs}}" is="dom-repeat">
-		<d2l-tab-panel text="{{item.text}}">{{item.content}}</d2l-tab-panel>
-	</template>
+  <template items="{{tabs}}" is="dom-repeat">
+    <d2l-tab-panel text="{{item.text}}">{{item.content}}</d2l-tab-panel>
+  </template>
 </d2l-tabs>
 ```
 
