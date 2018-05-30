@@ -57,37 +57,33 @@ Include the [webcomponents.js](http://webcomponents.org/polyfills/) "lite" polyf
 -->
 ```html
 <d2l-tabs>
-  <d2l-tab slot="tab" for-panel="p1" text="S17"></d2l-tab>
-  <d2l-tab-panel id="p1" slot="panel">Stuff for S17</d2l-tab-panel>
-  <d2l-tab slot="tab" for-panel="p2" text="F17"></d2l-tab>
-  <d2l-tab-panel id="p2" slot="panel">Stuff for F17</d2l-tab-panel>
-  <d2l-tab slot="tab" for-panel="p3" text="W18" style="display: none;"></d2l-tab>
-  <d2l-tab-panel id="p3" slot="panel">Stuff for W18</d2l-tab-panel>
-  <d2l-tab slot="tab" for-panel="p4" text="S18"></d2l-tab>
-  <d2l-tab-panel id="p4" slot="panel">Stuff for S18</d2l-tab-panel>
+  <d2l-tab-panel text="S17">Stuff for S17</d2l-tab-panel>
+  <d2l-tab-panel text="F17" selected>Stuff for F17</d2l-tab-panel>
+  <d2l-tab-panel text="W18">Stuff for W18</d2l-tab-panel>
+  <d2l-tab-panel text="S18">Stuff for S18</d2l-tab-panel>
 </d2l-tabs>
 ```
+
+* `no-auto-select` (optional): used on `d2l-tabs` to configure whether tabs are activated upon receiving focus.  Note: [Aria Tab Guidelines](https://www.w3.org/TR/wai-aria-practices-1.1/#tabpanel) suggest auto select being preferred unless the user will experience latency.
+* `no-padding` (optional): used on `d2l-tab-panel` to opt out of default padding/whitespace for the panel.
 
 Alternatively, `d2l-tab` and `d2l-tab-panel` can be specified with `dom-repeat`.
 
 ```html
 <d2l-tabs>
-	<template slot="tab" items="{{tabs}}" is="dom-repeat">
-		<d2l-tab slot="tab" for-panel="{{item.id}}" text="{{item.text}}"></d2l-tab>
-	</template>
-	<template slot="panel" items="{{tabs}}" is="dom-repeat">
-		<d2l-tab-panel slot="panel" id="{{item.id}}">{{item.content}}</d2l-tab-panel>
+	<template items="{{tabs}}" is="dom-repeat">
+		<d2l-tab-panel text="{{item.text}}">{{item.content}}</d2l-tab-panel>
 	</template>
 </d2l-tabs>
 ```
 
 #### Events
 
-The `d2l-tab` component dispatches the `d2l-tab-selected` event when the tab is activated.
+The `d2l-tab` component dispatches the `d2l-tab-panel-selected` event when the tab is activated.
 
 ```javascript
 // triggered when tab is activated
-tab.addEventListener('d2l-tab-selected', () => { ... });
+tab.addEventListener('d2l-tab-panel-selected', () => { ... });
 ```
 
 ## Developing, Testing and Contributing
