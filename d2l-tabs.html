@@ -233,7 +233,7 @@ Polymer-based web components for tabs
 
 					this._tabs = Array.prototype.slice.call(tabsList.querySelectorAll('[tabindex]'));
 
-					if (!this._initialized && !hasSelectedTab) {
+					if (!this._initialized && !hasSelectedTab && this._tabs.length > 0) {
 						this._initialized = true;
 						this._tabs[0].selected = true;
 					}
