@@ -15,17 +15,19 @@ Polymer-based web components for tab
 		<style>
 
 			:host {
-				border-radius: 0.3rem;
-				border: 1px solid transparent;
 				box-sizing: border-box;
 				display: inline-block;
+				max-width: 200px;
 				outline: none;
 				position: relative;
-				transition: box-shadow 0.2s;
+				vertical-align: top; /* the contained overflow creates new block/baseline context */
 			}
 
 			.d2l-tab-text {
-				padding: calc(0.6rem - 4px) 0.6rem;
+				margin: calc(0.6rem - 4px) 0.6rem;
+				overflow: hidden;
+				text-overflow: ellipsis;
+				white-space: nowrap;
 			}
 
 			.d2l-tab-selected-indicator {
@@ -35,6 +37,7 @@ Polymer-based web components for tab
 				display: none;
 				margin: 1px 12px 0 12px;
 				position: absolute;
+				transition: box-shadow 0.2s;
 				width: calc(100% - 1.2rem);
 			}
 

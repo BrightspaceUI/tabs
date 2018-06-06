@@ -30,7 +30,7 @@
 	<body unresolved class="d2l-typography">
 		<div class="vertical-section-container centered">
 
-			<h3>Basic Tabs</h3>
+			<h3>Tabs</h3>
 
 			<div style="margin-bottom: 20px;">
 				<button id="insert">Insert Panel</button>
@@ -40,11 +40,26 @@
 			<demo-snippet>
 				<template>
 
-					<d2l-tabs no-auto-select>
-						<d2l-tab-panel text="S17">Stuff for S17</d2l-tab-panel>
-						<d2l-tab-panel text="F17" selected>Stuff for F17</d2l-tab-panel>
-						<d2l-tab-panel text="W18">Stuff for W18</d2l-tab-panel>
+					<d2l-tabs>
 						<d2l-tab-panel text="S18">Stuff for S18</d2l-tab-panel>
+						<d2l-tab-panel text="W18">Stuff for W18</d2l-tab-panel>
+						<d2l-tab-panel text="F17" selected>Stuff for F17</d2l-tab-panel>
+						<d2l-tab-panel text="S17">Stuff for S17</d2l-tab-panel>
+					</d2l-tabs>
+
+				</template>
+			</demo-snippet>
+
+			<h3>Tabs (no-auto-select)</h3>
+
+			<demo-snippet>
+				<template>
+
+					<d2l-tabs no-auto-select>
+						<d2l-tab-panel text="Summer 18">Stuff for S18</d2l-tab-panel>
+						<d2l-tab-panel text="Winter 18">Stuff for W18</d2l-tab-panel>
+						<d2l-tab-panel text="Fall 17" selected>Stuff for F17</d2l-tab-panel>
+						<d2l-tab-panel text="Condensed Summer 17">Stuff for S17</d2l-tab-panel>
 					</d2l-tabs>
 
 				</template>
