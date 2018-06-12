@@ -15,7 +15,6 @@
     "wct.conf.json"
   ],
   "dependencies": {
-    "d2l-button": "^4.2.0",
     "d2l-colors": "^3.1.2",
     "d2l-fastdom-import": "https://github.com/Brightspace/fastdom-import.git#v1.0.2",
     "d2l-icons": "^4.14.0",
@@ -24,6 +23,7 @@
     "polymer": "1.9 - 2"
   },
   "devDependencies": {
+    "d2l-button": "^4.2.0",
     "iron-component-page": "^2.0.0",
     "iron-demo-helpers": "^2.0.0",
     "iron-test-helpers": "^2.0.0",
