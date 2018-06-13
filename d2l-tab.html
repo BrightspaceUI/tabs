@@ -1,5 +1,6 @@
 <link rel="import" href="../polymer/polymer.html">
 <link rel="import" href="../d2l-colors/d2l-colors.html">
+<link rel="import" href="../d2l-fastdom-import/fastdom.html">
 
 <!--
 `d2l-tab`
@@ -121,7 +122,10 @@ Polymer-based web components for tab
 				/**
 				 * Text for the tab.
 				 */
-				text: String
+				text: {
+					type: String,
+					observer: '_handleText'
+				}
 
 			},
 
@@ -133,6 +137,7 @@ Polymer-based web components for tab
 			ready: function() {
 				this._handleClick = this._handleClick.bind(this);
 				this._handleKeyDown = this._handleKeyDown.bind(this);
+				this.title = this.text;
 			},
 
 			attached: function() {
@@ -169,6 +174,26 @@ Polymer-based web components for tab
 				} else {
 					this.removeAttribute('aria-selected');
 				}
+			},
+
+			_getMeasures: function() {
+				this._updateMeasures();
+				return this._measures || this._measure();
+			},
+
+			_handleText: function(newValue) {
+				fastdom.measure(function() {
+					this._updateMeasures();
+				}.bind(this));
+			},
+
+			_updateMeasures: function() {
+				var rect = this.getBoundingClientRect();
+				this._measures = {
+					rect: rect,
+					offsetLeft: this.offsetLeft
+				};
+				return this._measures;
 			}
 
 		});
