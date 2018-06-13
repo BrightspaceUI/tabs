@@ -256,19 +256,19 @@ Polymer-based web components for tabs
 				});
 			},
 
-			_getMeasures: function(selectedTab) {
+			_getMeasures: function() {
 				return Promise.all([
 					this._measures ? Promise.resolve(this._measures) : this._updateMeasures(),
 					new Promise(function(resolve) {
 
 						fastdom.mutate(function() {
 							fastdom.measure(function() {
-								var tabMeasures = [], selectedTabMeasures;
+								var tabMeasures = [];
 								for (var i = 0; i < this._tabs.length; i++) {
 									tabMeasures.push(this._tabs[i]._getMeasures());
 								}
 								resolve(tabMeasures);
-						}.bind(this));
+							}.bind(this));
 
 						}.bind(this));
 					}.bind(this))

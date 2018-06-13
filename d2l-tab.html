@@ -181,7 +181,7 @@ Polymer-based web components for tab
 				return this._measures || this._measure();
 			},
 
-			_handleText: function(newValue) {
+			_handleText: function() {
 				fastdom.measure(function() {
 					this._updateMeasures();
 				}.bind(this));
