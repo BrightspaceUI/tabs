@@ -458,17 +458,6 @@ Polymer-based web components for tabs
 
 			},
 
-			_updateMeasures: function() {
-				return new Promise(function(resolve) {
-					fastdom.measure(function() {
-						this._measures = {
-							rect: this._getTabsContainer().getBoundingClientRect()
-						};
-						resolve(this._measures);
-					}.bind(this));
-				}.bind(this));
-			},
-
 			_scrollToPosition: function(translationValue) {
 				return new Promise(function(resolve) {
 					if (translationValue !== this._translationValue) {
@@ -488,79 +477,96 @@ Polymer-based web components for tabs
 				}.bind(this));
 			},
 
-			_updateScrollPosition: function(selectedTab) {
-				return this._getMeasures().then(function(measures) {
-					return new Promise(function(resolve) {
 
-						var selectedTabIndex = this._tabs.indexOf(selectedTab);
-						var selectedTabMeasures = measures.tabRects[selectedTabIndex];
+			_updateMeasures: function() {
+				return new Promise(function(resolve) {
+					fastdom.measure(function() {
+						this._measures = {
+							rect: this._getTabsContainer().getBoundingClientRect()
+						};
+						resolve(this._measures);
+					}.bind(this));
+				}.bind(this));
+			},
 
-						var isOverflowingLeft = (selectedTabMeasures.offsetLeft + this._translationValue < 0);
-						var isOverflowingRight = (selectedTabMeasures.offsetLeft + selectedTabMeasures.rect.width + this._translationValue > measures.tabsContainerRect.width);
-
-						var getNewTranslationValue = function() {
-							if (selectedTabIndex === 0) {
-								// position selected tab at beginning
-								return 0;
-							} else if (selectedTabIndex === (this._tabs.length - 1)) {
-								// position selected tab at end
-								return -1 * (selectedTabMeasures.offsetLeft - measures.tabsContainerRect.width + selectedTabMeasures.rect.width);
-							} else {
-								// position selected tab in middle
-								return -1 * (selectedTabMeasures.offsetLeft - (measures.tabsContainerRect.width / 2) + (selectedTabMeasures.rect.width / 2));
-							}
-						}.bind(this);
-
-						var newTranslationValue = this._translationValue;
-						if (isOverflowingLeft || isOverflowingRight) {
-							newTranslationValue = getNewTranslationValue();
-						}
-
-						// make sure the new position will not place selected tab behind left scroll button
-						var expectedTabLeftPosition = selectedTabMeasures.offsetLeft + newTranslationValue;
-						if (newTranslationValue < 0 && expectedTabLeftPosition > 0 && expectedTabLeftPosition < 35) {
-							newTranslationValue = getNewTranslationValue();
-						}
-						if (newTranslationValue > 0) {
-							newTranslationValue = 0;
-						}
-
-						// make sure the new position will not place selected tab behind the right scroll button
-						var expectedTabRightPosition = selectedTabMeasures.offsetLeft + selectedTabMeasures.rect.width + newTranslationValue;
-						if ((selectedTabIndex < this._tabs.length - 1) && (expectedTabRightPosition > measures.tabsContainerRect.width - 35) && (expectedTabRightPosition < measures.tabsContainerRect.width)) {
-							newTranslationValue = getNewTranslationValue();
-						}
-
-						var transitionPromise = this._scrollToPosition(newTranslationValue);
+			_updateScrollVisibility: function(measures) {
+				return new Promise(function(resolve) {
+					fastdom.mutate(function() {
 
 						var tabsContainer = this._getTabsContainer();
 
-						fastdom.mutate(function() {
+						// show/hide left scroll button
+						if (this._translationValue < 0 && !tabsContainer.hasAttribute('allow-scroll-left')) {
+							tabsContainer.setAttribute('allow-scroll-left', 'allow-scroll-left');
+						} else if (this._translationValue >= 0 && tabsContainer.hasAttribute('allow-scroll-left')) {
+							tabsContainer.removeAttribute('allow-scroll-left');
+						}
 
-							// show/hide left scroll button
-							if (this._translationValue < 0 && !tabsContainer.hasAttribute('allow-scroll-left')) {
-								tabsContainer.setAttribute('allow-scroll-left', 'allow-scroll-left');
-							} else if (this._translationValue >= 0 && tabsContainer.hasAttribute('allow-scroll-left')) {
-								tabsContainer.removeAttribute('allow-scroll-left');
-							}
+						// show/hide right scroll button
+						var lastTabMeasures = measures.tabRects[measures.tabRects.length - 1];
+						if (lastTabMeasures.offsetLeft + lastTabMeasures.rect.width + this._translationValue > measures.tabsContainerRect.width) {
+							tabsContainer.setAttribute('allow-scroll-right', 'allow-scroll-right');
+						} else {
+							tabsContainer.removeAttribute('allow-scroll-right');
+						}
 
-							// show/hide right scroll button
-							var lastTabMeasures = measures.tabRects[measures.tabRects.length - 1];
-							if (lastTabMeasures.offsetLeft + lastTabMeasures.rect.width + this._translationValue > measures.tabsContainerRect.width) {
-								tabsContainer.setAttribute('allow-scroll-right', 'allow-scroll-right');
-							} else {
-								tabsContainer.removeAttribute('allow-scroll-right');
-							}
-
-							transitionPromise.then(function() {
-								fastdom.measure(function() {
-									resolve();
-								});
-							});
-
-						}.bind(this));
+						resolve();
 
 					}.bind(this));
+				}.bind(this));
+			},
+
+			_updateScrollPosition: function(selectedTab) {
+				return this._getMeasures().then(function(measures) {
+
+					var selectedTabIndex = this._tabs.indexOf(selectedTab);
+					var selectedTabMeasures = measures.tabRects[selectedTabIndex];
+
+					var isOverflowingLeft = (selectedTabMeasures.offsetLeft + this._translationValue < 0);
+					var isOverflowingRight = (selectedTabMeasures.offsetLeft + selectedTabMeasures.rect.width + this._translationValue > measures.tabsContainerRect.width);
+
+					var getNewTranslationValue = function() {
+						if (selectedTabIndex === 0) {
+							// position selected tab at beginning
+							return 0;
+						} else if (selectedTabIndex === (this._tabs.length - 1)) {
+							// position selected tab at end
+							return -1 * (selectedTabMeasures.offsetLeft - measures.tabsContainerRect.width + selectedTabMeasures.rect.width);
+						} else {
+							// position selected tab in middle
+							return -1 * (selectedTabMeasures.offsetLeft - (measures.tabsContainerRect.width / 2) + (selectedTabMeasures.rect.width / 2));
+						}
+					}.bind(this);
+
+					var newTranslationValue = this._translationValue;
+					if (isOverflowingLeft || isOverflowingRight) {
+						newTranslationValue = getNewTranslationValue();
+					}
+
+					// make sure the new position will not place selected tab behind left scroll button
+					var expectedTabLeftPosition = selectedTabMeasures.offsetLeft + newTranslationValue;
+					if (newTranslationValue < 0 && expectedTabLeftPosition > 0 && expectedTabLeftPosition < 35) {
+						newTranslationValue = getNewTranslationValue();
+					}
+					if (newTranslationValue > 0) {
+						newTranslationValue = 0;
+					}
+
+					// make sure the new position will not place selected tab behind the right scroll button
+					var expectedTabRightPosition = selectedTabMeasures.offsetLeft + selectedTabMeasures.rect.width + newTranslationValue;
+					if ((selectedTabIndex < this._tabs.length - 1) && (expectedTabRightPosition > measures.tabsContainerRect.width - 35) && (expectedTabRightPosition < measures.tabsContainerRect.width)) {
+						newTranslationValue = getNewTranslationValue();
+					}
+
+					var transitionPromise = this._scrollToPosition(newTranslationValue);
+
+					var scrollVisibilityPromise = this._updateScrollVisibility(measures);
+
+					return Promise.all([
+						scrollVisibilityPromise,
+						transitionPromise
+					]);
+
 				}.bind(this));
 			}
 
