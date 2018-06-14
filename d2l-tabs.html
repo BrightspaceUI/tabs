@@ -191,6 +191,8 @@ Polymer-based web components for tabs
 				this._handleFocusTrapStart = this._handleFocusTrapStart.bind(this);
 				this._handleFocusTrapEnd = this._handleFocusTrapEnd.bind(this);
 				this._handleResize = this._handleResize.bind(this);
+				this._handleScrollLeft = this._handleScrollLeft.bind(this);
+				this._handleScrollRight = this._handleScrollRight.bind(this);
 			},
 
 			_handleOnBeforeFocus: function(tab) {
@@ -211,7 +213,7 @@ Polymer-based web components for tabs
 					tabsList.addEventListener('focus', this._handleTabFocus, true);
 					Polymer.dom(this.root).querySelector('.d2l-tabs-focus-start').addEventListener('focus', this._handleFocusTrapStart);
 					Polymer.dom(this.root).querySelector('.d2l-tabs-focus-end').addEventListener('focus', this._handleFocusTrapEnd);
-					Polymer.dom(this.root).querySelector('.d2l-tabs-scroll-right-container button').addEventListener('click', this._handleScrollRright);
+					Polymer.dom(this.root).querySelector('.d2l-tabs-scroll-right-container button').addEventListener('click', this._handleScrollRight);
 					Polymer.dom(this.root).querySelector('.d2l-tabs-scroll-left-container button').addEventListener('click', this._handleScrollLeft);
 
 					window.addEventListener('resize', this._handleResize);
@@ -223,7 +225,7 @@ Polymer-based web components for tabs
 				tabsList.removeEventListener('focus', this._handleTabFocus, true);
 				Polymer.dom(this.root).querySelector('.d2l-tabs-focus-start').removeEventListener('focus', this._handleFocusTrapStart);
 				Polymer.dom(this.root).querySelector('.d2l-tabs-focus-end').removeEventListener('focus', this._handleFocusTrapEnd);
-				Polymer.dom(this.root).querySelector('.d2l-tabs-scroll-right-container button').removeEventListener('click', this._handleScrollRright);
+				Polymer.dom(this.root).querySelector('.d2l-tabs-scroll-right-container button').removeEventListener('click', this._handleScrollRight);
 				Polymer.dom(this.root).querySelector('.d2l-tabs-scroll-left-container button').removeEventListener('click', this._handleScrollLeft);
 
 				Polymer.dom(this).unobserveNodes(this._handleDomChanges);
@@ -311,11 +313,44 @@ Polymer-based web components for tabs
 			},
 
 			_handleScrollLeft: function() {
-
+				this._getMeasures().then(function(measures) {
+					var tabsContainer = this._getTabsContainer();
+					var newTranslationValue = (this._translationValue + measures.tabsContainerRect.width - 35);
+					var isOverflowingLeft = (newTranslationValue < 0);
+					if (!isOverflowingLeft) {
+						newTranslationValue = 0;
+					}
+					return this._scrollToPosition(newTranslationValue).then(function() {
+						fastdom.mutate(function() {
+							tabsContainer.setAttribute('allow-scroll-right', 'allow-scroll-right');
+							if (!isOverflowingLeft) {
+								tabsContainer.removeAttribute('allow-scroll-left');
+								Polymer.dom(this.root).querySelector('.d2l-tabs-scroll-right-container button').focus();
+							}
+						}.bind(this));
+					}.bind(this));
+				}.bind(this));
 			},
 
-			_handleScrollRright: function() {
-
+			_handleScrollRight: function() {
+				this._getMeasures().then(function(measures) {
+					var tabsContainer = this._getTabsContainer();
+					var newTranslationValue = (this._translationValue - measures.tabsContainerRect.width + 35);
+					var lastTabMeasures = measures.tabRects[measures.tabRects.length - 1];
+					var isOverflowingRight = (lastTabMeasures.offsetLeft + lastTabMeasures.rect.width + newTranslationValue >= measures.tabsContainerRect.width);
+					if (!isOverflowingRight) {
+						newTranslationValue = -1 * (lastTabMeasures.offsetLeft - measures.tabsContainerRect.width + lastTabMeasures.rect.width);
+					}
+					return this._scrollToPosition(newTranslationValue).then(function() {
+						fastdom.mutate(function() {
+							tabsContainer.setAttribute('allow-scroll-left', 'allow-scroll-left');
+							if (!isOverflowingRight) {
+								tabsContainer.removeAttribute('allow-scroll-right');
+								Polymer.dom(this.root).querySelector('.d2l-tabs-scroll-left-container button').focus();
+							}
+						}.bind(this));
+					}.bind(this));
+				}.bind(this));
 			},
 
 			_handleTabFocus: function(e) {
@@ -434,6 +469,25 @@ Polymer-based web components for tabs
 				}.bind(this));
 			},
 
+			_scrollToPosition: function(translationValue) {
+				return new Promise(function(resolve) {
+					if (translationValue !== this._translationValue) {
+						this._translationValue = translationValue;
+						fastdom.mutate(function() {
+							var tabList = this._getTabsContainerList();
+							var handleTransitionEnd = function() {
+								tabList.removeEventListener('transitionend', handleTransitionEnd);
+								resolve();
+							};
+							tabList.addEventListener('transitionend', handleTransitionEnd);
+							tabList.style.transform = 'translateX(' + this._translationValue + 'px)';
+						}.bind(this));
+					} else {
+						resolve();
+					}
+				}.bind(this));
+			},
+
 			_updateScrollPosition: function(selectedTab) {
 				return this._getMeasures().then(function(measures) {
 					return new Promise(function(resolve) {
@@ -457,58 +511,42 @@ Polymer-based web components for tabs
 							}
 						}.bind(this);
 
-						var newTransitionValue = this._translationValue;
+						var newTranslationValue = this._translationValue;
 						if (isOverflowingLeft || isOverflowingRight) {
-							newTransitionValue = getNewTranslationValue();
+							newTranslationValue = getNewTranslationValue();
 						}
 
 						// make sure the new position will not place selected tab behind left scroll button
-						var expectedTabLeftPosition = selectedTabMeasures.offsetLeft + newTransitionValue;
-						if (newTransitionValue < 0 && expectedTabLeftPosition > 0 && expectedTabLeftPosition < 47) {
-							newTransitionValue = getNewTranslationValue();
+						var expectedTabLeftPosition = selectedTabMeasures.offsetLeft + newTranslationValue;
+						if (newTranslationValue < 0 && expectedTabLeftPosition > 0 && expectedTabLeftPosition < 35) {
+							newTranslationValue = getNewTranslationValue();
 						}
-						if (newTransitionValue > 0) {
-							newTransitionValue = 0;
+						if (newTranslationValue > 0) {
+							newTranslationValue = 0;
 						}
 
 						// make sure the new position will not place selected tab behind the right scroll button
-						var expectedTabRightPosition = selectedTabMeasures.offsetLeft + selectedTabMeasures.rect.width + newTransitionValue;
-						if ((selectedTabIndex < this._tabs.length - 1) && (expectedTabRightPosition > measures.tabsContainerRect.width - 47) && (expectedTabRightPosition < measures.tabsContainerRect.width)) {
-							newTransitionValue = getNewTranslationValue();
+						var expectedTabRightPosition = selectedTabMeasures.offsetLeft + selectedTabMeasures.rect.width + newTranslationValue;
+						if ((selectedTabIndex < this._tabs.length - 1) && (expectedTabRightPosition > measures.tabsContainerRect.width - 35) && (expectedTabRightPosition < measures.tabsContainerRect.width)) {
+							newTranslationValue = getNewTranslationValue();
 						}
 
-						var transitionPromise = new Promise(function(resolve) {
-							if (newTransitionValue !== this._translationValue) {
-								this._translationValue = newTransitionValue;
-								fastdom.mutate(function() {
-									var tabList = this._getTabsContainerList();
-									var handleTransitionEnd = function() {
-										tabList.removeEventListener('transitionend', handleTransitionEnd);
-										resolve();
-									};
-									tabList.addEventListener('transitionend', handleTransitionEnd);
-									tabList.style.transform = 'translateX(' + this._translationValue + 'px)';
-								}.bind(this));
-							} else {
-								resolve();
-							}
-						}.bind(this));
+						var transitionPromise = this._scrollToPosition(newTranslationValue);
 
 						var tabsContainer = this._getTabsContainer();
 
-						// show/hide left scroll button
 						fastdom.mutate(function() {
+
+							// show/hide left scroll button
 							if (this._translationValue < 0 && !tabsContainer.hasAttribute('allow-scroll-left')) {
-								//console.log('adding left', this._translationValue, tabsContainer.hasAttribute('allow-scroll-left'));
 								tabsContainer.setAttribute('allow-scroll-left', 'allow-scroll-left');
 							} else if (this._translationValue >= 0 && tabsContainer.hasAttribute('allow-scroll-left')) {
-								//console.log('removing left');
 								tabsContainer.removeAttribute('allow-scroll-left');
 							}
 
 							// show/hide right scroll button
-							var lastTabMesures = measures.tabRects[measures.tabRects.length - 1];
-							if (lastTabMesures.offsetLeft + lastTabMesures.rect.width + this._translationValue > measures.tabsContainerRect.width) {
+							var lastTabMeasures = measures.tabRects[measures.tabRects.length - 1];
+							if (lastTabMeasures.offsetLeft + lastTabMeasures.rect.width + this._translationValue > measures.tabsContainerRect.width) {
 								tabsContainer.setAttribute('allow-scroll-right', 'allow-scroll-right');
 							} else {
 								tabsContainer.removeAttribute('allow-scroll-right');
