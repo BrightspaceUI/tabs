@@ -125,7 +125,6 @@ Polymer-based web components for tabs
 		</style>
 		<div class="d2l-tabs-layout">
 			<div class="d2l-tabs-container">
-				<div style="position: absolute; left:50%; border-left: 1px solid red; height: 10px;" ></div>
 				<div class="d2l-tabs-scroll-left-container">
 					<button class="d2l-tabs-scroll-button" title="Page Left"><d2l-icon icon="d2l-tier1:chevron-left"></d2l-icon></button>
 				</div>
@@ -271,8 +270,8 @@ Polymer-based web components for tabs
 								}
 								resolve(tabMeasures);
 							}.bind(this));
-
 						}.bind(this));
+
 					}.bind(this))
 				]).then(function(all) {
 					return {
@@ -309,47 +308,59 @@ Polymer-based web components for tabs
 			},
 
 			_handleResize: function() {
-				this._updateMeasures();
+				this._updateMeasures().then(function() {
+					return this._getMeasures();
+				}.bind(this)).then(function(measures) {
+					return this._updateScrollVisibility(measures);
+				}.bind(this));
 			},
 
 			_handleScrollLeft: function() {
 				this._getMeasures().then(function(measures) {
-					var tabsContainer = this._getTabsContainer();
+
 					var newTranslationValue = (this._translationValue + measures.tabsContainerRect.width - 35);
 					var isOverflowingLeft = (newTranslationValue < 0);
 					if (!isOverflowingLeft) {
 						newTranslationValue = 0;
 					}
-					return this._scrollToPosition(newTranslationValue).then(function() {
-						fastdom.mutate(function() {
-							tabsContainer.setAttribute('allow-scroll-right', 'allow-scroll-right');
-							if (!isOverflowingLeft) {
-								tabsContainer.removeAttribute('allow-scroll-left');
-								Polymer.dom(this.root).querySelector('.d2l-tabs-scroll-right-container button').focus();
-							}
-						}.bind(this));
+
+					var positionPromise = this._scrollToPosition(newTranslationValue).then(function() {
+						return this._updateScrollVisibility(measures);
 					}.bind(this));
+
+					if (!isOverflowingLeft) {
+						positionPromise.then(function() {
+							fastdom.mutate(function() {
+								Polymer.dom(this.root).querySelector('.d2l-tabs-scroll-right-container button').focus();
+							}.bind(this));
+						}.bind(this));
+					}
+
 				}.bind(this));
 			},
 
 			_handleScrollRight: function() {
 				this._getMeasures().then(function(measures) {
-					var tabsContainer = this._getTabsContainer();
+
 					var newTranslationValue = (this._translationValue - measures.tabsContainerRect.width + 35);
 					var lastTabMeasures = measures.tabRects[measures.tabRects.length - 1];
 					var isOverflowingRight = (lastTabMeasures.offsetLeft + lastTabMeasures.rect.width + newTranslationValue >= measures.tabsContainerRect.width);
 					if (!isOverflowingRight) {
 						newTranslationValue = -1 * (lastTabMeasures.offsetLeft - measures.tabsContainerRect.width + lastTabMeasures.rect.width);
 					}
-					return this._scrollToPosition(newTranslationValue).then(function() {
-						fastdom.mutate(function() {
-							tabsContainer.setAttribute('allow-scroll-left', 'allow-scroll-left');
-							if (!isOverflowingRight) {
-								tabsContainer.removeAttribute('allow-scroll-right');
-								Polymer.dom(this.root).querySelector('.d2l-tabs-scroll-left-container button').focus();
-							}
-						}.bind(this));
+
+					var positionPromise = this._scrollToPosition(newTranslationValue).then(function() {
+						return this._updateScrollVisibility(measures);
 					}.bind(this));
+
+					if (!isOverflowingRight) {
+						positionPromise.then(function() {
+							fastdom.mutate(function() {
+								Polymer.dom(this.root).querySelector('.d2l-tabs-scroll-left-container button').focus();
+							}.bind(this));
+						}.bind(this));
+					}
+
 				}.bind(this));
 			},
 
@@ -476,7 +487,6 @@ Polymer-based web components for tabs
 					}
 				}.bind(this));
 			},
-
 
 			_updateMeasures: function() {
 				return new Promise(function(resolve) {
