@@ -1,6 +1,6 @@
 <link rel="import" href="../polymer/polymer.html">
-<link rel="import" href="../d2l-button/d2l-button-shared-styles.html">
 <link rel="import" href="../d2l-colors/d2l-colors.html">
+<link rel="import" href="../d2l-fastdom-import/fastdom.html">
 
 <!--
 `d2l-tab`
@@ -20,7 +20,7 @@ Polymer-based web components for tab
 				max-width: 200px;
 				outline: none;
 				position: relative;
-				vertical-align: top; /* the contained overflow creates new block/baseline context */
+				vertical-align: middle;
 			}
 
 			.d2l-tab-text {
@@ -30,15 +30,46 @@ Polymer-based web components for tab
 				white-space: nowrap;
 			}
 
+			:host(:first-child) .d2l-tab-text {
+					margin-left: 0;
+			}
+
+			:host-context([dir="rtl"]):host(:first-child) .d2l-tab-text {
+				margin-left: 0.6rem;
+				margin-right: 0;
+			}
+
+			:host(:dir(rtl):first-child) .d2l-tab-text {
+				margin-left: 0.6rem;
+				margin-right: 0;
+			}
+
 			.d2l-tab-selected-indicator {
 				border-top: 4px solid var(--d2l-color-celestine);
 				border-top-left-radius: 4px;
 				border-top-right-radius: 4px;
+				bottom: 0;
 				display: none;
-				margin: 1px 12px 0 12px;
+				margin: 1px 0.6rem 0 0.6rem;
 				position: absolute;
+				-webkit-transition: box-shadow 0.2s;
 				transition: box-shadow 0.2s;
 				width: calc(100% - 1.2rem);
+			}
+
+			:host(:first-child) .d2l-tab-selected-indicator {
+				margin-left: 0;
+				width: calc(100% - 0.6rem);
+			}
+
+			:host-context([dir="rtl"]):host(:first-child) .d2l-tab-selected-indicator {
+				margin-left: 0.6rem;
+				margin-right: 0;
+			}
+
+			:host(:dir(rtl):first-child) .d2l-tab-selected-indicator {
+				margin-left: 0.6rem;
+				margin-right: 0;
 			}
 
 			:host(:hover) {
@@ -93,7 +124,10 @@ Polymer-based web components for tab
 				/**
 				 * Text for the tab.
 				 */
-				text: String
+				text: {
+					type: String,
+					observer: '_handleText'
+				}
 
 			},
 
@@ -105,6 +139,7 @@ Polymer-based web components for tab
 			ready: function() {
 				this._handleClick = this._handleClick.bind(this);
 				this._handleKeyDown = this._handleKeyDown.bind(this);
+				this.title = this.text;
 			},
 
 			attached: function() {
@@ -141,6 +176,26 @@ Polymer-based web components for tab
 				} else {
 					this.removeAttribute('aria-selected');
 				}
+			},
+
+			_getMeasures: function() {
+				this._updateMeasures();
+				return this._measures || this._measure();
+			},
+
+			_handleText: function() {
+				fastdom.measure(function() {
+					this._updateMeasures();
+				}.bind(this));
+			},
+
+			_updateMeasures: function() {
+				var rect = this.getBoundingClientRect();
+				this._measures = {
+					rect: rect,
+					offsetLeft: this.offsetLeft
+				};
+				return this._measures;
 			}
 
 		});
