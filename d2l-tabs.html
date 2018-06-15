@@ -235,8 +235,10 @@ Polymer-based web components for tabs
 			_focusSelected: function() {
 				var selectedTab = Polymer.dom(this.root).querySelector('d2l-tab[aria-selected]');
 				if (selectedTab) {
-					fastdom.mutate(function() {
-						selectedTab.focus();
+					this._updateScrollPosition(selectedTab).then(function() {
+						fastdom.mutate(function() {
+							selectedTab.focus();
+						});
 					});
 				}
 			},
