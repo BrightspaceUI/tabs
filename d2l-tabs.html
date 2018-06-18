@@ -34,9 +34,15 @@ Polymer-based web components for tabs
 
 			.d2l-tabs-container {
 				flex: auto;
+				overflow: hidden;
 				overflow-x: hidden;
+				margin-left: -3px;
+				padding-left: 3px;
 				position: relative;
 				white-space: nowrap;
+				-webkit-transition: max-width 200ms ease-in;
+				transition: max-width 200ms ease-in;
+
 			}
 
 			.d2l-tabs-container-ext {
@@ -47,6 +53,12 @@ Polymer-based web components for tabs
 				display: inline-block;
 				-webkit-transition: transform 200ms ease-out;
 				transition: transform 200ms ease-out;
+			}
+
+			.d2l-tabs-focus-start,
+			.d2l-tabs-focus-end {
+					position: absolute;
+					left: 0;
 			}
 
 			.d2l-tabs-scroll-left-container,
@@ -89,7 +101,7 @@ Polymer-based web components for tabs
 				margin: 0;
 				outline: none;
 				padding: 0;
-				transform: translateY(6px);
+				transform: translateY(10px);
 				-webkit-transition: box-shadow 0.2s;
 				transition: box-shadow 0.2s;
 				width: 30px;
@@ -156,10 +168,19 @@ Polymer-based web components for tabs
 				/**
 				 * Maximum number of tabs to show before overflowing.
 				 */
+				/*
 				maxToShow: {
 					type: Number,
 					//observer: '_boundaryChanged',
 					value: -1
+				},
+				*/
+
+				/**
+				 * Maximum width of tabs list to show before overflowing.
+				 */
+				maxWidth: {
+					type: String
 				},
 
 				/**
@@ -200,6 +221,13 @@ Polymer-based web components for tabs
 			},
 
 			attached: function() {
+				if (this.maxWidth) {
+					fastdom.mutate(function() {
+						var tabsContainer = this._getTabsContainer();
+						tabsContainer.style.maxWidth = this.maxWidth;
+						tabsContainer.setAttribute('scroll-collapsed', 'scroll-collapsed');
+					}.bind(this));
+				}
 				Polymer.RenderStatus.afterNextRender(this, function() {
 					var tabsList = this._getTabsContainerList();
 					Polymer.dom(this).observeNodes(this._handleDomChanges);
@@ -279,6 +307,7 @@ Polymer-based web components for tabs
 				]).then(function(all) {
 					return {
 						tabsContainerRect: all[0].rect,
+						tabsContainerListRect: all[0].listRect,
 						tabRects: all[1]
 					};
 				});
@@ -344,6 +373,37 @@ Polymer-based web components for tabs
 
 			_handleScrollRight: function() {
 				this._getMeasures().then(function(measures) {
+
+					var tabsContainer = this._getTabsContainer();
+					if (tabsContainer.hasAttribute('scroll-collapsed')) {
+						fastdom.mutate(function() {
+							var handleTransitionEnd = function(e) {
+								if (e.propertyName !== 'max-width') {
+									return;
+								}
+								tabsContainer.removeEventListener('transitionend', handleTransitionEnd);
+								fastdom.mutate(function() {
+									tabsContainer.style.maxWidth = null;
+								});
+								this._measures = null;
+								this._getMeasures().then(function(m) {
+									this._updateScrollVisibility(m).then(function() {
+										if (!tabsContainer.hasAttribute('allow-scroll-right')) {
+											if (!tabsContainer.hasAttribute('allow-scroll-left')) {
+												this._focusSelected();
+											} else {
+												Polymer.dom(this.root).querySelector('.d2l-tabs-scroll-left-container button').focus();
+											}
+										}
+									}.bind(this));
+								}.bind(this));
+							}.bind(this);
+							tabsContainer.removeAttribute('scroll-collapsed');
+							tabsContainer.addEventListener('transitionend', handleTransitionEnd);
+							tabsContainer.style.maxWidth = (measures.tabsContainerListRect.width + 100) + 'px';
+						}.bind(this));
+						return;
+					}
 
 					var newTranslationValue = (this._translationValue - measures.tabsContainerRect.width + 35);
 					var lastTabMeasures = measures.tabRects[measures.tabRects.length - 1];
@@ -478,7 +538,10 @@ Polymer-based web components for tabs
 						this._translationValue = translationValue;
 						fastdom.mutate(function() {
 							var tabList = this._getTabsContainerList();
-							var handleTransitionEnd = function() {
+							var handleTransitionEnd = function(e) {
+								if (e.propertyName !== 'transform') {
+									return;
+								}
 								tabList.removeEventListener('transitionend', handleTransitionEnd);
 								resolve();
 							};
@@ -495,7 +558,8 @@ Polymer-based web components for tabs
 				return new Promise(function(resolve) {
 					fastdom.measure(function() {
 						this._measures = {
-							rect: this._getTabsContainer().getBoundingClientRect()
+							rect: this._getTabsContainer().getBoundingClientRect(),
+							listRect: this._getTabsContainerList().getBoundingClientRect()
 						};
 						resolve(this._measures);
 					}.bind(this));

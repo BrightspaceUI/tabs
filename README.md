@@ -64,6 +64,7 @@ Include the [webcomponents.js](http://webcomponents.org/polyfills/) "lite" polyf
 </d2l-tabs>
 ```
 
+* `max-width` (optional): used on `d2l-tabs` to limit the width of the tab list (excluding `ext` slot).
 * `no-auto-select` (optional): used on `d2l-tabs` to configure whether tabs are activated upon receiving focus.  Note: [Aria Tab Guidelines](https://www.w3.org/TR/wai-aria-practices-1.1/#tabpanel) suggest auto select being preferred unless the user will experience latency.
 * `no-padding` (optional): used on `d2l-tab-panel` to opt out of default padding/whitespace for the panel.
 
