@@ -230,7 +230,8 @@ Polymer-based web components for tabs
 				}
 				Polymer.RenderStatus.afterNextRender(this, function() {
 					var tabsList = this._getTabsContainerList();
-					Polymer.dom(this).observeNodes(this._handleDomChanges);
+
+					this._slotObserver = Polymer.dom(this).observeNodes(this._handleDomChanges);
 
 					this.arrowKeyFocusablesContainer = tabsList;
 					this.arrowKeyFocusablesOnBeforeFocus = this._handleOnBeforeFocus;
@@ -251,12 +252,16 @@ Polymer-based web components for tabs
 			detached: function() {
 				var tabsList = this._getTabsContainerList();
 				tabsList.removeEventListener('focus', this._handleTabFocus, true);
+
 				Polymer.dom(this.root).querySelector('.d2l-tabs-focus-start').removeEventListener('focus', this._handleFocusTrapStart);
 				Polymer.dom(this.root).querySelector('.d2l-tabs-focus-end').removeEventListener('focus', this._handleFocusTrapEnd);
 				Polymer.dom(this.root).querySelector('.d2l-tabs-scroll-right-container button').removeEventListener('click', this._handleScrollRight);
 				Polymer.dom(this.root).querySelector('.d2l-tabs-scroll-left-container button').removeEventListener('click', this._handleScrollLeft);
 
-				Polymer.dom(this).unobserveNodes(this._handleDomChanges);
+				if (this._slotObserver) {
+					Polymer.dom(this).unobserveNodes(this._slotObserver);
+				}
+
 				window.removeEventListener('resize', this._handleResize);
 			},
 
