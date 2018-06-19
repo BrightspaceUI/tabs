@@ -168,19 +168,10 @@ Polymer-based web components for tabs
 				/**
 				 * Maximum number of tabs to show before overflowing.
 				 */
-				/*
 				maxToShow: {
 					type: Number,
 					//observer: '_boundaryChanged',
 					value: -1
-				},
-				*/
-
-				/**
-				 * Maximum width of tabs list to show before overflowing.
-				 */
-				maxWidth: {
-					type: String
 				},
 
 				/**
@@ -221,13 +212,6 @@ Polymer-based web components for tabs
 			},
 
 			attached: function() {
-				if (this.maxWidth) {
-					fastdom.mutate(function() {
-						var tabsContainer = this._getTabsContainer();
-						tabsContainer.style.maxWidth = this.maxWidth;
-						tabsContainer.setAttribute('scroll-collapsed', 'scroll-collapsed');
-					}.bind(this));
-				}
 				Polymer.RenderStatus.afterNextRender(this, function() {
 					var tabsList = this._getTabsContainerList();
 
@@ -533,7 +517,51 @@ Polymer-based web components for tabs
 					selectedTab = this._tabs[0];
 				}
 
-				this._updateScrollPosition(selectedTab);
+				this._initializeTabsContainerWidth(selectedTab).then(function() {
+					this._updateScrollPosition(selectedTab);
+				}.bind(this));
+
+			},
+
+			_initializeTabsContainerWidth: function(selectedTab) {
+
+				if (this.maxToShow <= 0 || this.maxToShow >= this._tabs.length ) {
+					return Promise.resolve();
+				}
+
+				return new Promise(function(resolve) {
+					if (this.maxToShow > 0 && this.maxToShow < this._tabs.length) {
+						var selectedTabIndex = this._tabs.indexOf(selectedTab);
+
+						var tabsBeforeAndAfter = Math.floor((this.maxToShow - 1) / 2);
+						var tabsRemaining = (this.maxToShow - 1) % 2;
+
+						var firstToShow = selectedTabIndex - tabsBeforeAndAfter;
+						var lastToShow = selectedTabIndex + tabsBeforeAndAfter + tabsRemaining;
+
+						if (firstToShow < 0) {
+							lastToShow += Math.abs(firstToShow);
+							firstToShow = 0;
+						} else if (lastToShow > this._tabs.length - 1) {
+							firstToShow -= (lastToShow - (this._tabs.length - 1));
+							lastToShow = this._tabs.length - 1;
+						}
+
+						fastdom.measure(function() {
+							var maxWidth = 0;
+							for (var i = firstToShow; i <= lastToShow; i++) {
+								maxWidth += this._tabs[i]._getMeasures().rect.width;
+							}
+							fastdom.mutate(function() {
+								var tabsContainer = this._getTabsContainer();
+								tabsContainer.style.maxWidth = maxWidth + 35 + 'px';
+								tabsContainer.setAttribute('scroll-collapsed', 'scroll-collapsed');
+								resolve();
+							}.bind(this));
+						}.bind(this));
+
+					}
+				}.bind(this));
 
 			},
 
