@@ -170,8 +170,7 @@ Polymer-based web components for tabs
 				 */
 				maxToShow: {
 					type: Number,
-					//observer: '_boundaryChanged',
-					value: -1
+					reflectToAttribute: true
 				},
 
 				/**
@@ -365,6 +364,8 @@ Polymer-based web components for tabs
 
 					var tabsContainer = this._getTabsContainer();
 					if (tabsContainer.hasAttribute('scroll-collapsed')) {
+						this.maxToShow = null;
+
 						fastdom.mutate(function() {
 							var handleTransitionEnd = function(e) {
 								if (e.propertyName !== 'max-width') {
@@ -391,6 +392,7 @@ Polymer-based web components for tabs
 							tabsContainer.addEventListener('transitionend', handleTransitionEnd);
 							tabsContainer.style.maxWidth = (measures.tabsContainerListRect.width + 100) + 'px';
 						}.bind(this));
+
 						return;
 					}
 
@@ -517,50 +519,8 @@ Polymer-based web components for tabs
 					selectedTab = this._tabs[0];
 				}
 
-				this._initializeTabsContainerWidth(selectedTab).then(function() {
+				this._updateTabsContainerWidth(selectedTab).then(function() {
 					this._updateScrollPosition(selectedTab);
-				}.bind(this));
-
-			},
-
-			_initializeTabsContainerWidth: function(selectedTab) {
-
-				if (this.maxToShow <= 0 || this.maxToShow >= this._tabs.length) {
-					return Promise.resolve();
-				}
-
-				return new Promise(function(resolve) {
-					if (this.maxToShow > 0 && this.maxToShow < this._tabs.length) {
-						var selectedTabIndex = this._tabs.indexOf(selectedTab);
-
-						var tabsBeforeAndAfter = Math.floor((this.maxToShow - 1) / 2);
-						var tabsRemaining = (this.maxToShow - 1) % 2;
-
-						var firstToShow = selectedTabIndex - tabsBeforeAndAfter;
-						var lastToShow = selectedTabIndex + tabsBeforeAndAfter + tabsRemaining;
-
-						if (firstToShow < 0) {
-							lastToShow += Math.abs(firstToShow);
-							firstToShow = 0;
-						} else if (lastToShow > this._tabs.length - 1) {
-							firstToShow -= (lastToShow - (this._tabs.length - 1));
-							lastToShow = this._tabs.length - 1;
-						}
-
-						fastdom.measure(function() {
-							var maxWidth = 0;
-							for (var i = firstToShow; i <= lastToShow; i++) {
-								maxWidth += this._tabs[i]._getMeasures().rect.width;
-							}
-							fastdom.mutate(function() {
-								var tabsContainer = this._getTabsContainer();
-								tabsContainer.style.maxWidth = maxWidth + 35 + 'px';
-								tabsContainer.setAttribute('scroll-collapsed', 'scroll-collapsed');
-								resolve();
-							}.bind(this));
-						}.bind(this));
-
-					}
 				}.bind(this));
 
 			},
@@ -678,6 +638,48 @@ Polymer-based web components for tabs
 					]);
 
 				}.bind(this));
+			},
+
+			_updateTabsContainerWidth: function(selectedTab) {
+
+				if (!this.maxToShow || this.maxToShow <= 0 || this.maxToShow >= this._tabs.length) {
+					return Promise.resolve();
+				}
+
+				return new Promise(function(resolve) {
+					if (this.maxToShow > 0 && this.maxToShow < this._tabs.length) {
+						var selectedTabIndex = this._tabs.indexOf(selectedTab);
+
+						var tabsBeforeAndAfter = Math.floor((this.maxToShow - 1) / 2);
+						var tabsRemaining = (this.maxToShow - 1) % 2;
+
+						var firstToShow = selectedTabIndex - tabsBeforeAndAfter;
+						var lastToShow = selectedTabIndex + tabsBeforeAndAfter + tabsRemaining;
+
+						if (firstToShow < 0) {
+							lastToShow += Math.abs(firstToShow);
+							firstToShow = 0;
+						} else if (lastToShow > this._tabs.length - 1) {
+							firstToShow -= (lastToShow - (this._tabs.length - 1));
+							lastToShow = this._tabs.length - 1;
+						}
+
+						fastdom.measure(function() {
+							var maxWidth = 0;
+							for (var i = firstToShow; i <= lastToShow; i++) {
+								maxWidth += this._tabs[i]._getMeasures().rect.width;
+							}
+							fastdom.mutate(function() {
+								var tabsContainer = this._getTabsContainer();
+								tabsContainer.style.maxWidth = maxWidth + 35 + 'px';
+								tabsContainer.setAttribute('scroll-collapsed', 'scroll-collapsed');
+								resolve();
+							}.bind(this));
+						}.bind(this));
+
+					}
+				}.bind(this));
+
 			}
 
 		});
