@@ -309,13 +309,54 @@ Polymer-based web components for tabs
 				return Polymer.dom(this.root).querySelector('.d2l-tabs-container-list');
 			},
 
-			_handleFocusTrapStart: function(e) {
-				if (e.relatedTarget && e.relatedTarget.tagName === 'D2L-TAB') {
-					var previousFocusable = D2L.Dom.Focus.getPreviousFocusable(e.target, false);
-					if (previousFocusable) fastdom.mutate(function() { previousFocusable.focus(); });
-				} else {
-					this._focusSelected();
-				}
+			_handleDomChanges: function(info) {
+
+				var panels = this.getEffectiveChildren();
+
+				fastdom.mutate(function() {
+
+					for (var i = 0; i < info.removedNodes.length; i++) {
+						var removedNode = info.removedNodes[i];
+						if (removedNode.tagName === 'D2L-TAB-PANEL' && removedNode.id.length > 0) {
+							var tabToRemove = Polymer.dom(this.root).querySelector('[aria-controls="' + removedNode.id + '"]');
+							tabToRemove.parentNode.removeChild(tabToRemove);
+						}
+					}
+
+					var tabsList = this._getTabsContainerList();
+					var selectedTab;
+
+					for (var j = 0; j < info.addedNodes.length; j++) {
+						if (info.addedNodes[j].tagName === 'D2L-TAB-PANEL') {
+
+							var panel = info.addedNodes[j];
+							if (panel.id.length === 0) {
+								panel.id = D2L.Id.getUniqueId();
+							}
+
+							var panelIndex = panels.indexOf(panel);
+
+							var tab = document.createElement('d2l-tab');
+							tab.setAttribute('aria-controls', panel.id);
+							tab.selected = panel.selected;
+							tab.text = panel.text;
+							if (tab.selected) selectedTab = tab;
+
+							if (panelIndex >= tabsList.children.length) {
+								tabsList.appendChild(tab);
+							} else {
+								tabsList.insertBefore(tab, tabsList.children[panelIndex]);
+							}
+
+						}
+					}
+
+					this._tabs = Array.prototype.slice.call(tabsList.querySelectorAll('[tabindex]'));
+
+					this._initializeSelectedTab(selectedTab);
+
+				}.bind(this));
+
 			},
 
 			_handleFocusTrapEnd: function(e) {
@@ -324,6 +365,15 @@ Polymer-based web components for tabs
 				} else {
 					var nextFocusable = D2L.Dom.Focus.getNextFocusable(e.target, false);
 					if (nextFocusable) fastdom.mutate(function() { nextFocusable.focus(); });
+				}
+			},
+
+			_handleFocusTrapStart: function(e) {
+				if (e.relatedTarget && e.relatedTarget.tagName === 'D2L-TAB') {
+					var previousFocusable = D2L.Dom.Focus.getPreviousFocusable(e.target, false);
+					if (previousFocusable) fastdom.mutate(function() { previousFocusable.focus(); });
+				} else {
+					this._focusSelected();
 				}
 			},
 
@@ -427,6 +477,14 @@ Polymer-based web components for tabs
 				}
 			},
 
+			_handleTabPanelSelected: function(e) {
+				var panel = Polymer.dom(e).rootTarget;
+				var tab = Polymer.dom(this.root).querySelector('[aria-controls="' + panel.id + '"]');
+				if (tab) {
+					tab.selected = true;
+				}
+			},
+
 			_handleTabSelected: function(e) {
 
 				e.stopPropagation();
@@ -444,64 +502,6 @@ Polymer-based web components for tabs
 							this.querySelector('#' + tab.getAttribute('aria-controls')).selected = false;
 						}
 					}
-				}.bind(this));
-
-			},
-
-			_handleTabPanelSelected: function(e) {
-				var panel = Polymer.dom(e).rootTarget;
-				var tab = Polymer.dom(this.root).querySelector('[aria-controls="' + panel.id + '"]');
-				if (tab) {
-					tab.selected = true;
-				}
-			},
-
-			_handleDomChanges: function(info) {
-
-				var panels = this.getEffectiveChildren();
-
-				fastdom.mutate(function() {
-
-					for (var i = 0; i < info.removedNodes.length; i++) {
-						var removedNode = info.removedNodes[i];
-						if (removedNode.tagName === 'D2L-TAB-PANEL' && removedNode.id.length > 0) {
-							var tabToRemove = Polymer.dom(this.root).querySelector('[aria-controls="' + removedNode.id + '"]');
-							tabToRemove.parentNode.removeChild(tabToRemove);
-						}
-					}
-
-					var tabsList = this._getTabsContainerList();
-					var selectedTab;
-
-					for (var j = 0; j < info.addedNodes.length; j++) {
-						if (info.addedNodes[j].tagName === 'D2L-TAB-PANEL') {
-
-							var panel = info.addedNodes[j];
-							if (panel.id.length === 0) {
-								panel.id = D2L.Id.getUniqueId();
-							}
-
-							var panelIndex = panels.indexOf(panel);
-
-							var tab = document.createElement('d2l-tab');
-							tab.setAttribute('aria-controls', panel.id);
-							tab.selected = panel.selected;
-							tab.text = panel.text;
-							if (tab.selected) selectedTab = tab;
-
-							if (panelIndex >= tabsList.children.length) {
-								tabsList.appendChild(tab);
-							} else {
-								tabsList.insertBefore(tab, tabsList.children[panelIndex]);
-							}
-
-						}
-					}
-
-					this._tabs = Array.prototype.slice.call(tabsList.querySelectorAll('[tabindex]'));
-
-					this._initializeSelectedTab(selectedTab);
-
 				}.bind(this));
 
 			},
@@ -559,33 +559,6 @@ Polymer-based web components for tabs
 				}.bind(this));
 			},
 
-			_updateScrollVisibility: function(measures) {
-				return new Promise(function(resolve) {
-					fastdom.mutate(function() {
-
-						var tabsContainer = this._getTabsContainer();
-
-						// show/hide left scroll button
-						if (this._translationValue < 0 && !tabsContainer.hasAttribute('allow-scroll-left')) {
-							tabsContainer.setAttribute('allow-scroll-left', 'allow-scroll-left');
-						} else if (this._translationValue >= 0 && tabsContainer.hasAttribute('allow-scroll-left')) {
-							tabsContainer.removeAttribute('allow-scroll-left');
-						}
-
-						// show/hide right scroll button
-						var lastTabMeasures = measures.tabRects[measures.tabRects.length - 1];
-						if (lastTabMeasures.offsetLeft + lastTabMeasures.rect.width + this._translationValue > measures.tabsContainerRect.width) {
-							tabsContainer.setAttribute('allow-scroll-right', 'allow-scroll-right');
-						} else {
-							tabsContainer.removeAttribute('allow-scroll-right');
-						}
-
-						resolve();
-
-					}.bind(this));
-				}.bind(this));
-			},
-
 			_updateScrollPosition: function(selectedTab) {
 				return this._getMeasures().then(function(measures) {
 
@@ -637,6 +610,33 @@ Polymer-based web components for tabs
 						transitionPromise
 					]);
 
+				}.bind(this));
+			},
+
+			_updateScrollVisibility: function(measures) {
+				return new Promise(function(resolve) {
+					fastdom.mutate(function() {
+
+						var tabsContainer = this._getTabsContainer();
+
+						// show/hide left scroll button
+						if (this._translationValue < 0 && !tabsContainer.hasAttribute('allow-scroll-left')) {
+							tabsContainer.setAttribute('allow-scroll-left', 'allow-scroll-left');
+						} else if (this._translationValue >= 0 && tabsContainer.hasAttribute('allow-scroll-left')) {
+							tabsContainer.removeAttribute('allow-scroll-left');
+						}
+
+						// show/hide right scroll button
+						var lastTabMeasures = measures.tabRects[measures.tabRects.length - 1];
+						if (lastTabMeasures.offsetLeft + lastTabMeasures.rect.width + this._translationValue > measures.tabsContainerRect.width) {
+							tabsContainer.setAttribute('allow-scroll-right', 'allow-scroll-right');
+						} else {
+							tabsContainer.removeAttribute('allow-scroll-right');
+						}
+
+						resolve();
+
+					}.bind(this));
 				}.bind(this));
 			},
 
