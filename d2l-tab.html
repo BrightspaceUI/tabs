@@ -139,7 +139,6 @@ Polymer-based web components for tab
 			ready: function() {
 				this._handleClick = this._handleClick.bind(this);
 				this._handleKeyDown = this._handleKeyDown.bind(this);
-				this.title = this.text;
 			},
 
 			attached: function() {
@@ -184,6 +183,7 @@ Polymer-based web components for tab
 			},
 
 			_handleText: function() {
+				this.title = this.text;
 				fastdom.measure(function() {
 					this._updateMeasures();
 				}.bind(this));
