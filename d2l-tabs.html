@@ -8,6 +8,7 @@
 <link rel="import" href="../d2l-polymer-behaviors/d2l-focusable-arrowkeys-behavior.html">
 <link rel="import" href="d2l-tab.html">
 <link rel="import" href="d2l-tab-panel.html">
+<link rel="import" href="localize-behavior.html">
 
 <!--
 `d2l-tabs`
@@ -140,13 +141,13 @@ Polymer-based web components for tabs
 		<div class="d2l-tabs-layout">
 			<div class="d2l-tabs-container">
 				<div class="d2l-tabs-scroll-left-container">
-					<button class="d2l-tabs-scroll-button" title="Page Left"><d2l-icon icon="d2l-tier1:chevron-left"></d2l-icon></button>
+					<button class="d2l-tabs-scroll-button" title="[[localize('scroll.previous')]]"><d2l-icon icon="d2l-tier1:chevron-left"></d2l-icon></button>
 				</div>
 				<span class="d2l-tabs-focus-start" tabindex="0"></span>
 				<div class="d2l-tabs-container-list"></div>
 				<span class="d2l-tabs-focus-end" tabindex="0"></span>
 				<div class="d2l-tabs-scroll-right-container">
-					<button class="d2l-tabs-scroll-button" title="Page Right"><d2l-icon icon="d2l-tier1:chevron-right"></d2l-icon></button>
+					<button class="d2l-tabs-scroll-button" title="[[localize('scroll.next')]]"><d2l-icon icon="d2l-tier1:chevron-right"></d2l-icon></button>
 				</div>
 			</div>
 			<div class="d2l-tabs-container-ext"><slot name="ext"></slot></div>
@@ -194,7 +195,8 @@ Polymer-based web components for tabs
 			},
 
 			behaviors: [
-				D2L.PolymerBehaviors.FocusableArrowKeysBehavior
+				D2L.PolymerBehaviors.FocusableArrowKeysBehavior,
+				D2L.PolymerBehaviors.Tabs.LocalizeBehavior
 			],
 
 			ready: function() {
