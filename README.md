@@ -56,11 +56,14 @@ Include the [webcomponents.js](http://webcomponents.org/polyfills/) "lite" polyf
 ```
 -->
 ```html
-<d2l-tabs>
-  <d2l-tab-panel text="S17">Stuff for S17</d2l-tab-panel>
-  <d2l-tab-panel text="F17" selected>Stuff for F17</d2l-tab-panel>
-  <d2l-tab-panel text="W18">Stuff for W18</d2l-tab-panel>
-  <d2l-tab-panel text="S18">Stuff for S18</d2l-tab-panel>
+<d2l-tabs max-to-show="3">
+	<d2l-tab-panel text="All">Tab content for All</d2l-tab-panel>
+	<d2l-tab-panel text="Biology" selected>Tab content for Biology</d2l-tab-panel>
+	<d2l-tab-panel text="Chemistry">Tab content for Chemistry</d2l-tab-panel>
+	<d2l-tab-panel text="Earth Sciences">Tab content for Earth Sciences</d2l-tab-panel>
+	<d2l-tab-panel text="Physics">Tab content for Physics</d2l-tab-panel>
+	<d2l-tab-panel text="Math">Tab content for Math</d2l-tab-panel>
+	<d2l-tab-panel text="Community">Tab content for Community</d2l-tab-panel>
 </d2l-tabs>
 ```
 
