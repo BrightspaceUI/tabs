@@ -528,6 +528,8 @@ Polymer-based web components for tabs
 				var selectedTab = Polymer.dom(e).rootTarget;
 				var selectedPanel = this.querySelector('#' + selectedTab.getAttribute('aria-controls'));
 
+				this._updateScrollPosition(selectedTab);
+
 				selectedPanel.selected = true;
 
 				fastdom.mutate(function() {
