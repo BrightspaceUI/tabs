@@ -248,6 +248,51 @@ Polymer-based web components for tabs
 				window.removeEventListener('resize', this._handleResize);
 			},
 
+			_calculateScrollPosition: function(selectedTab, measures) {
+
+				var selectedTabIndex = this._tabs.indexOf(selectedTab);
+				var selectedTabMeasures = measures.tabRects[selectedTabIndex];
+
+				var isOverflowingLeft = (selectedTabMeasures.offsetLeft + this._translationValue < 0);
+				var isOverflowingRight = (selectedTabMeasures.offsetLeft + selectedTabMeasures.rect.width + this._translationValue > measures.tabsContainerRect.width);
+
+				var getNewTranslationValue = function() {
+					if (selectedTabIndex === 0) {
+						// position selected tab at beginning
+						return 0;
+					} else if (selectedTabIndex === (this._tabs.length - 1)) {
+						// position selected tab at end
+						return -1 * (selectedTabMeasures.offsetLeft - measures.tabsContainerRect.width + selectedTabMeasures.rect.width);
+					} else {
+						// position selected tab in middle
+						return -1 * (selectedTabMeasures.offsetLeft - (measures.tabsContainerRect.width / 2) + (selectedTabMeasures.rect.width / 2));
+					}
+				}.bind(this);
+
+				var newTranslationValue = this._translationValue;
+				if (isOverflowingLeft || isOverflowingRight) {
+					newTranslationValue = getNewTranslationValue();
+				}
+
+				// make sure the new position will not place selected tab behind left scroll button
+				var expectedTabLeftPosition = selectedTabMeasures.offsetLeft + newTranslationValue;
+				if (newTranslationValue < 0 && expectedTabLeftPosition > 0 && expectedTabLeftPosition < 35) {
+					newTranslationValue = getNewTranslationValue();
+				}
+				if (newTranslationValue > 0) {
+					newTranslationValue = 0;
+				}
+
+				// make sure the new position will not place selected tab behind the right scroll button
+				var expectedTabRightPosition = selectedTabMeasures.offsetLeft + selectedTabMeasures.rect.width + newTranslationValue;
+				if ((selectedTabIndex < this._tabs.length - 1) && (expectedTabRightPosition > measures.tabsContainerRect.width - 35) && (expectedTabRightPosition < measures.tabsContainerRect.width)) {
+					newTranslationValue = getNewTranslationValue();
+				}
+
+				return newTranslationValue;
+
+			},
+
 			_focusSelected: function() {
 				var selectedTab = Polymer.dom(this.root).querySelector('d2l-tab[aria-selected]');
 				if (selectedTab) {
@@ -388,23 +433,35 @@ Polymer-based web components for tabs
 			_handleScrollLeft: function() {
 				this._getMeasures().then(function(measures) {
 
-					var newTranslationValue = (this._translationValue + measures.tabsContainerRect.width - 35);
-					var isOverflowingLeft = (newTranslationValue < 0);
-					if (!isOverflowingLeft) {
-						newTranslationValue = 0;
-					}
+					this._tryExpandTabsContainer(measures).then(function(expanded) {
 
-					var positionPromise = this._scrollToPosition(newTranslationValue).then(function() {
-						return this._updateScrollVisibility(measures);
-					}.bind(this));
+						if (expanded) {
+							return this._getMeasures();
+						} else {
+							return Promise.resolve(measures);
+						}
 
-					if (!isOverflowingLeft) {
-						positionPromise.then(function() {
-							fastdom.mutate(function() {
-								Polymer.dom(this.root).querySelector('.d2l-tabs-scroll-right-container button').focus();
-							}.bind(this));
+					}.bind(this)).then(function(newMeasures) {
+
+						var newTranslationValue = (this._translationValue + measures.tabsContainerRect.width - 35);
+						var isOverflowingLeft = (newTranslationValue < 0);
+						if (!isOverflowingLeft) {
+							newTranslationValue = 0;
+						}
+
+						var positionPromise = this._scrollToPosition(newTranslationValue).then(function() {
+							return this._updateScrollVisibility(newMeasures);
 						}.bind(this));
-					}
+
+						if (!isOverflowingLeft) {
+							positionPromise.then(function() {
+								fastdom.mutate(function() {
+									Polymer.dom(this.root).querySelector('.d2l-tabs-scroll-right-container button').focus();
+								}.bind(this));
+							}.bind(this));
+						}
+
+					}.bind(this));
 
 				}.bind(this));
 			},
@@ -412,58 +469,36 @@ Polymer-based web components for tabs
 			_handleScrollRight: function() {
 				this._getMeasures().then(function(measures) {
 
-					var tabsContainer = this._getTabsContainer();
-					if (tabsContainer.hasAttribute('scroll-collapsed')) {
-						this.maxToShow = null;
+					this._tryExpandTabsContainer(measures).then(function(expanded) {
 
-						fastdom.mutate(function() {
-							var handleTransitionEnd = function(e) {
-								if (e.propertyName !== 'max-width') {
-									return;
-								}
-								tabsContainer.removeEventListener('transitionend', handleTransitionEnd);
+						if (expanded) {
+							return this._getMeasures();
+						} else {
+							return Promise.resolve(measures);
+						}
+
+					}.bind(this)).then(function(newMeasures) {
+
+						var newTranslationValue = (this._translationValue - measures.tabsContainerRect.width + 35);
+						var lastTabMeasures = measures.tabRects[measures.tabRects.length - 1];
+						var isOverflowingRight = (lastTabMeasures.offsetLeft + lastTabMeasures.rect.width + newTranslationValue >= newMeasures.tabsContainerRect.width);
+						if (!isOverflowingRight) {
+							newTranslationValue = -1 * (lastTabMeasures.offsetLeft - newMeasures.tabsContainerRect.width + lastTabMeasures.rect.width);
+						}
+
+						var positionPromise = this._scrollToPosition(newTranslationValue).then(function() {
+							return this._updateScrollVisibility(newMeasures);
+						}.bind(this));
+
+						if (!isOverflowingRight) {
+							positionPromise.then(function() {
 								fastdom.mutate(function() {
-									tabsContainer.style.maxWidth = null;
-								});
-								this._measures = null;
-								this._getMeasures().then(function(m) {
-									this._updateScrollVisibility(m).then(function() {
-										if (!tabsContainer.hasAttribute('allow-scroll-right')) {
-											if (!tabsContainer.hasAttribute('allow-scroll-left')) {
-												this._focusSelected();
-											} else {
-												Polymer.dom(this.root).querySelector('.d2l-tabs-scroll-left-container button').focus();
-											}
-										}
-									}.bind(this));
+									Polymer.dom(this.root).querySelector('.d2l-tabs-scroll-left-container button').focus();
 								}.bind(this));
-							}.bind(this);
-							tabsContainer.removeAttribute('scroll-collapsed');
-							tabsContainer.addEventListener('transitionend', handleTransitionEnd);
-							tabsContainer.style.maxWidth = (measures.tabsContainerListRect.width + 100) + 'px';
-						}.bind(this));
-
-						return;
-					}
-
-					var newTranslationValue = (this._translationValue - measures.tabsContainerRect.width + 35);
-					var lastTabMeasures = measures.tabRects[measures.tabRects.length - 1];
-					var isOverflowingRight = (lastTabMeasures.offsetLeft + lastTabMeasures.rect.width + newTranslationValue >= measures.tabsContainerRect.width);
-					if (!isOverflowingRight) {
-						newTranslationValue = -1 * (lastTabMeasures.offsetLeft - measures.tabsContainerRect.width + lastTabMeasures.rect.width);
-					}
-
-					var positionPromise = this._scrollToPosition(newTranslationValue).then(function() {
-						return this._updateScrollVisibility(measures);
-					}.bind(this));
-
-					if (!isOverflowingRight) {
-						positionPromise.then(function() {
-							fastdom.mutate(function() {
-								Polymer.dom(this.root).querySelector('.d2l-tabs-scroll-left-container button').focus();
 							}.bind(this));
-						}.bind(this));
-					}
+						}
+
+					}.bind(this));
 
 				}.bind(this));
 			},
@@ -547,6 +582,51 @@ Polymer-based web components for tabs
 				}.bind(this));
 			},
 
+			_tryExpandTabsContainer: function(measures) {
+
+				var tabsContainer = this._getTabsContainer();
+				if (!tabsContainer.hasAttribute('scroll-collapsed')) {
+					return Promise.resolve(false);
+				}
+
+				return new Promise(function(resolve) {
+
+					this.maxToShow = null;
+
+					fastdom.mutate(function() {
+
+						var handleTransitionEnd = function(e) {
+							if (e.propertyName !== 'max-width') {
+								return;
+							}
+							tabsContainer.removeEventListener('transitionend', handleTransitionEnd);
+							this._measures = null;
+							this._getMeasures().then(function(m) {
+								this._updateScrollVisibility(m).then(function() {
+									fastdom.mutate(function() {
+										tabsContainer.style.maxWidth = null;
+									});
+									if (!tabsContainer.hasAttribute('allow-scroll-right')) {
+										if (!tabsContainer.hasAttribute('allow-scroll-left')) {
+											this._focusSelected();
+										} else {
+											Polymer.dom(this.root).querySelector('.d2l-tabs-scroll-left-container button').focus();
+										}
+									}
+									resolve(true);
+								}.bind(this));
+							}.bind(this));
+						}.bind(this);
+
+						tabsContainer.removeAttribute('scroll-collapsed');
+						tabsContainer.addEventListener('transitionend', handleTransitionEnd);
+						tabsContainer.style.maxWidth = (measures.tabsContainerListRect.width + 50) + 'px';
+
+					}.bind(this));
+
+				}.bind(this));
+			},
+
 			_updateMeasures: function() {
 				return new Promise(function(resolve) {
 					fastdom.measure(function() {
@@ -562,47 +642,8 @@ Polymer-based web components for tabs
 			_updateScrollPosition: function(selectedTab) {
 				return this._getMeasures().then(function(measures) {
 
-					var selectedTabIndex = this._tabs.indexOf(selectedTab);
-					var selectedTabMeasures = measures.tabRects[selectedTabIndex];
-
-					var isOverflowingLeft = (selectedTabMeasures.offsetLeft + this._translationValue < 0);
-					var isOverflowingRight = (selectedTabMeasures.offsetLeft + selectedTabMeasures.rect.width + this._translationValue > measures.tabsContainerRect.width);
-
-					var getNewTranslationValue = function() {
-						if (selectedTabIndex === 0) {
-							// position selected tab at beginning
-							return 0;
-						} else if (selectedTabIndex === (this._tabs.length - 1)) {
-							// position selected tab at end
-							return -1 * (selectedTabMeasures.offsetLeft - measures.tabsContainerRect.width + selectedTabMeasures.rect.width);
-						} else {
-							// position selected tab in middle
-							return -1 * (selectedTabMeasures.offsetLeft - (measures.tabsContainerRect.width / 2) + (selectedTabMeasures.rect.width / 2));
-						}
-					}.bind(this);
-
-					var newTranslationValue = this._translationValue;
-					if (isOverflowingLeft || isOverflowingRight) {
-						newTranslationValue = getNewTranslationValue();
-					}
-
-					// make sure the new position will not place selected tab behind left scroll button
-					var expectedTabLeftPosition = selectedTabMeasures.offsetLeft + newTranslationValue;
-					if (newTranslationValue < 0 && expectedTabLeftPosition > 0 && expectedTabLeftPosition < 35) {
-						newTranslationValue = getNewTranslationValue();
-					}
-					if (newTranslationValue > 0) {
-						newTranslationValue = 0;
-					}
-
-					// make sure the new position will not place selected tab behind the right scroll button
-					var expectedTabRightPosition = selectedTabMeasures.offsetLeft + selectedTabMeasures.rect.width + newTranslationValue;
-					if ((selectedTabIndex < this._tabs.length - 1) && (expectedTabRightPosition > measures.tabsContainerRect.width - 35) && (expectedTabRightPosition < measures.tabsContainerRect.width)) {
-						newTranslationValue = getNewTranslationValue();
-					}
-
+					var newTranslationValue = this._calculateScrollPosition(selectedTab, measures);
 					var transitionPromise = this._scrollToPosition(newTranslationValue);
-
 					var scrollVisibilityPromise = this._updateScrollVisibility(measures);
 
 					return Promise.all([
@@ -646,38 +687,38 @@ Polymer-based web components for tabs
 					return Promise.resolve();
 				}
 
-				return new Promise(function(resolve) {
-					if (this.maxToShow > 0 && this.maxToShow < this._tabs.length) {
+				return this._getMeasures().then(function(measures) {
+					return new Promise(function(resolve) {
+
 						var selectedTabIndex = this._tabs.indexOf(selectedTab);
-
-						var tabsBeforeAndAfter = Math.floor((this.maxToShow - 1) / 2);
-						var tabsRemaining = (this.maxToShow - 1) % 2;
-
-						var firstToShow = selectedTabIndex - tabsBeforeAndAfter;
-						var lastToShow = selectedTabIndex + tabsBeforeAndAfter + tabsRemaining;
-
-						if (firstToShow < 0) {
-							lastToShow += Math.abs(firstToShow);
-							firstToShow = 0;
-						} else if (lastToShow > this._tabs.length - 1) {
-							firstToShow -= (lastToShow - (this._tabs.length - 1));
-							lastToShow = this._tabs.length - 1;
+						if (selectedTabIndex > this.maxToShow - 1) {
+							resolve();
+							return;
 						}
 
-						fastdom.measure(function() {
-							var maxWidth = 0;
-							for (var i = firstToShow; i <= lastToShow; i++) {
-								maxWidth += this._tabs[i]._getMeasures().rect.width;
-							}
-							fastdom.mutate(function() {
-								var tabsContainer = this._getTabsContainer();
-								tabsContainer.style.maxWidth = maxWidth + 35 + 'px';
-								tabsContainer.setAttribute('scroll-collapsed', 'scroll-collapsed');
-								resolve();
-							}.bind(this));
+						var maxWidth = 0;
+						for (var i = 0; i < this.maxToShow; i++) {
+							maxWidth += measures.tabRects[i].rect.width;
+						}
+
+						if (measures.tabsContainerListRect.width > maxWidth) {
+							maxWidth += 47;
+						}
+
+						if (maxWidth >= measures.tabsContainerRect.width) {
+							resolve();
+							return;
+						}
+
+						fastdom.mutate(function() {
+							var tabsContainer = this._getTabsContainer();
+							tabsContainer.style.maxWidth = maxWidth + 'px';
+							tabsContainer.setAttribute('scroll-collapsed', 'scroll-collapsed');
+							this._measures = null;
+							resolve();
 						}.bind(this));
 
-					}
+					}.bind(this));
 				}.bind(this));
 
 			}
