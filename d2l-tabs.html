@@ -35,6 +35,7 @@ Polymer-based web components for tabs
 			}
 
 			.d2l-tabs-container {
+				box-sizing: border-box;
 				flex: auto;
 				overflow: hidden;
 				overflow-x: hidden;
@@ -44,7 +45,6 @@ Polymer-based web components for tabs
 				white-space: nowrap;
 				-webkit-transition: max-width 200ms ease-in;
 				transition: max-width 200ms ease-in;
-
 			}
 
 			.d2l-tabs-container-ext {
@@ -189,6 +189,8 @@ Polymer-based web components for tabs
 
 			},
 
+			_SCROLL_BUTTON_WIDTH: 56,
+
 			listeners: {
 				'd2l-tab-selected': '_handleTabSelected',
 				'd2l-tab-panel-selected': '_handleTabPanelSelected'
@@ -210,7 +212,31 @@ Polymer-based web components for tabs
 			},
 
 			_handleOnBeforeFocus: function(tab) {
-				return this._updateScrollPosition(tab);
+				var tabsContainer = this._getTabsContainer();
+				if (!tabsContainer.hasAttribute('scroll-collapsed')) {
+
+					return this._updateScrollPosition(tab);
+
+				} else {
+
+					return this._getMeasures().then(function(measures) {
+
+						var newTranslationValue = this._calculateScrollPosition(tab, measures);
+						if (newTranslationValue >= 0) {
+							return;
+						}
+
+						return this._tryExpandTabsContainer(measures).then(function(expanded) {
+							if (expanded) {
+								return;
+							} else {
+								return this._updateScrollPosition(tab);
+							}
+						}.bind(this));
+
+					}.bind(this));
+
+				}
 			},
 
 			attached: function() {
@@ -279,7 +305,7 @@ Polymer-based web components for tabs
 
 				// make sure the new position will not place selected tab behind left scroll button
 				var expectedTabLeftPosition = selectedTabMeasures.offsetLeft + newTranslationValue;
-				if (newTranslationValue < 0 && expectedTabLeftPosition > 0 && expectedTabLeftPosition < 35) {
+				if (newTranslationValue < 0 && expectedTabLeftPosition > 0 && expectedTabLeftPosition < this._SCROLL_BUTTON_WIDTH) {
 					newTranslationValue = getNewTranslationValue();
 				}
 				if (newTranslationValue > 0) {
@@ -288,7 +314,7 @@ Polymer-based web components for tabs
 
 				// make sure the new position will not place selected tab behind the right scroll button
 				var expectedTabRightPosition = selectedTabMeasures.offsetLeft + selectedTabMeasures.rect.width + newTranslationValue;
-				if ((selectedTabIndex < this._tabs.length - 1) && (expectedTabRightPosition > measures.tabsContainerRect.width - 35) && (expectedTabRightPosition < measures.tabsContainerRect.width)) {
+				if ((selectedTabIndex < this._tabs.length - 1) && (expectedTabRightPosition > measures.tabsContainerRect.width - this._SCROLL_BUTTON_WIDTH) && (expectedTabRightPosition < measures.tabsContainerRect.width)) {
 					newTranslationValue = getNewTranslationValue();
 				}
 
@@ -446,7 +472,7 @@ Polymer-based web components for tabs
 
 					}.bind(this)).then(function(newMeasures) {
 
-						var newTranslationValue = (this._translationValue + measures.tabsContainerRect.width - 35);
+						var newTranslationValue = (this._translationValue + measures.tabsContainerRect.width - this._SCROLL_BUTTON_WIDTH);
 						var isOverflowingLeft = (newTranslationValue < 0);
 						if (!isOverflowingLeft) {
 							newTranslationValue = 0;
@@ -482,11 +508,17 @@ Polymer-based web components for tabs
 
 					}.bind(this)).then(function(newMeasures) {
 
-						var newTranslationValue = (this._translationValue - measures.tabsContainerRect.width + 35);
+						var newTranslationValue = (this._translationValue - measures.tabsContainerRect.width + this._SCROLL_BUTTON_WIDTH);
+						if (newTranslationValue < 0) {
+							newTranslationValue += this._SCROLL_BUTTON_WIDTH;
+						}
 						var lastTabMeasures = measures.tabRects[measures.tabRects.length - 1];
 						var isOverflowingRight = (lastTabMeasures.offsetLeft + lastTabMeasures.rect.width + newTranslationValue >= newMeasures.tabsContainerRect.width);
 						if (!isOverflowingRight) {
 							newTranslationValue = -1 * (lastTabMeasures.offsetLeft - newMeasures.tabsContainerRect.width + lastTabMeasures.rect.width);
+							if (newTranslationValue > 0) {
+								newTranslationValue = 0;
+							}
 						}
 
 						var positionPromise = this._scrollToPosition(newTranslationValue).then(function() {
@@ -701,13 +733,13 @@ Polymer-based web components for tabs
 							return;
 						}
 
-						var maxWidth = 0;
+						var maxWidth = 4; // initial value to allow for padding hack
 						for (var i = 0; i < this.maxToShow; i++) {
 							maxWidth += measures.tabRects[i].rect.width;
 						}
 
 						if (measures.tabsContainerListRect.width > maxWidth) {
-							maxWidth += 47;
+							maxWidth += this._SCROLL_BUTTON_WIDTH;
 						}
 
 						if (maxWidth >= measures.tabsContainerRect.width) {
