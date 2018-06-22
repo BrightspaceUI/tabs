@@ -212,31 +212,31 @@ Polymer-based web components for tabs
 			},
 
 			_handleOnBeforeFocus: function(tab) {
-					var tabsContainer = this._getTabsContainer();
-					if (!tabsContainer.hasAttribute('scroll-collapsed')) {
+				var tabsContainer = this._getTabsContainer();
+				if (!tabsContainer.hasAttribute('scroll-collapsed')) {
 
-						return this._updateScrollPosition(tab);
+					return this._updateScrollPosition(tab);
 
-					} else {
+				} else {
 
-						return this._getMeasures().then(function(measures) {
+					return this._getMeasures().then(function(measures) {
 
-							var newTranslationValue = this._calculateScrollPosition(tab, measures);
-							if (newTranslationValue >= 0) {
+						var newTranslationValue = this._calculateScrollPosition(tab, measures);
+						if (newTranslationValue >= 0) {
+							return;
+						}
+
+						return this._tryExpandTabsContainer(measures).then(function(expanded) {
+							if (expanded) {
 								return;
+							} else {
+								return this._updateScrollPosition(tab);
 							}
-
-							return this._tryExpandTabsContainer(measures).then(function(expanded) {
-								if (expanded) {
-									return;
-								} else {
-									return this._updateScrollPosition(tab);
-								}
-							}.bind(this));
-
 						}.bind(this));
 
-					}
+					}.bind(this));
+
+				}
 			},
 
 			attached: function() {
