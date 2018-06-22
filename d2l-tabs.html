@@ -45,7 +45,6 @@ Polymer-based web components for tabs
 				white-space: nowrap;
 				-webkit-transition: max-width 200ms ease-in;
 				transition: max-width 200ms ease-in;
-
 			}
 
 			.d2l-tabs-container-ext {
@@ -190,7 +189,7 @@ Polymer-based web components for tabs
 
 			},
 
-			_SCROLL_BUTTON_WIDTH: 60,
+			_SCROLL_BUTTON_WIDTH: 56,
 
 			listeners: {
 				'd2l-tab-selected': '_handleTabSelected',
@@ -213,7 +212,31 @@ Polymer-based web components for tabs
 			},
 
 			_handleOnBeforeFocus: function(tab) {
-				return this._updateScrollPosition(tab);
+					var tabsContainer = this._getTabsContainer();
+					if (!tabsContainer.hasAttribute('scroll-collapsed')) {
+
+						return this._updateScrollPosition(tab);
+
+					} else {
+
+						return this._getMeasures().then(function(measures) {
+
+							var newTranslationValue = this._calculateScrollPosition(tab, measures);
+							if (newTranslationValue >= 0) {
+								return;
+							}
+
+							return this._tryExpandTabsContainer(measures).then(function(expanded) {
+								if (expanded) {
+									return;
+								} else {
+									return this._updateScrollPosition(tab);
+								}
+							}.bind(this));
+
+						}.bind(this));
+
+					}
 			},
 
 			attached: function() {
