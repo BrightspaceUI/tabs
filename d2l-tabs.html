@@ -710,7 +710,7 @@ Polymer-based web components for tabs
 							return;
 						}
 
-						var maxWidth = 0;
+						var maxWidth = 4; // initial value to allow for padding hack
 						for (var i = 0; i < this.maxToShow; i++) {
 							maxWidth += measures.tabRects[i].rect.width;
 						}
