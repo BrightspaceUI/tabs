@@ -3,7 +3,9 @@
 [![Bower version][bower-image]][bower-url]
 [![Build status][ci-image]][ci-url]
 
-A [Polymer](https://www.polymer-project.org/1.0/)-based web component for tabs.
+A [Polymer](https://www.polymer-project.org/)-based web component for tabs.
+
+![screenshot of tabs component](/screenshot.gif?raw=true)
 
 ## Installation
 
@@ -14,7 +16,7 @@ bower install d2l-tabs
 
 ## Usage
 
-Include the [webcomponents.js](http://webcomponents.org/polyfills/) "lite" polyfill (for browsers who don't natively support web components), then import the component or behavior.
+Include the [webcomponents.js](http://webcomponents.org/polyfills/) polyfill loader (for browsers who don't natively support web components), then import the component or behavior.
 
 ### Component
 
@@ -22,7 +24,7 @@ Include the [webcomponents.js](http://webcomponents.org/polyfills/) "lite" polyf
 
 ```html
 <head>
-  <script src="../webcomponentsjs/webcomponents-lite.js"></script>
+  <script src="../webcomponentsjs/webcomponents-loader.js"></script>
   <link rel="import" href="../d2l-tabs/d2l-tabs.html">
 </head>
 ```
@@ -31,7 +33,7 @@ Include the [webcomponents.js](http://webcomponents.org/polyfills/) "lite" polyf
 ```
 <custom-element-demo>
   <template>
-    <script src="../webcomponentsjs/webcomponents-lite.js"></script>
+    <script src="../webcomponentsjs/webcomponents-loader.js"></script>
     <link rel="import" href="../d2l-typography/d2l-typography.html">
     <link rel="import" href="d2l-tabs.html">
     <custom-style include="d2l-typography">
