@@ -78,6 +78,21 @@ Polymer-based web components for tabs
 				margin-left: 4px;
 			}
 
+			/* P2-shadow */
+			:host-context([dir="rtl"]) .d2l-tabs-scroll-left-container {
+				left: auto;
+				margin-left: 0;
+				margin-right: 4px;
+				right: 0;
+			}
+			/* P1-shady, P2-shady */
+			:host(:dir(rtl)) .d2l-tabs-scroll-left-container {
+				left: auto;
+				margin-left: 0;
+				margin-right: 4px;
+				right: 0;
+			}
+
 			.d2l-tabs-container[allow-scroll-left] > .d2l-tabs-scroll-left-container {
 				display: inline-block;
 			}
@@ -85,6 +100,21 @@ Polymer-based web components for tabs
 			.d2l-tabs-scroll-right-container {
 				margin-right: 4px;
 				right: 0;
+			}
+
+			/* P2-shadow */
+			:host-context([dir="rtl"]) .d2l-tabs-scroll-right-container {
+				left: 0;
+				margin-left: 4px;
+				margin-right: 0;
+				right: auto;
+			}
+			/* P1-shady, P2-shady */
+			:host(:dir(rtl)) .d2l-tabs-scroll-right-container {
+				left: 0;
+				margin-left: 4px;
+				margin-right: 0;
+				right: auto;
 			}
 
 			.d2l-tabs-container[allow-scroll-right] > .d2l-tabs-scroll-right-container {
@@ -135,6 +165,17 @@ Polymer-based web components for tabs
 
 			.d2l-tabs-container-ext {
 				padding-left: 4px;
+			}
+
+			/* P2-shadow */
+			:host-context([dir="rtl"]) .d2l-tabs-container-ext {
+				padding-left: 0;
+				padding-right: 4px;
+			}
+			/* P1-shady, P2-shady */
+			:host(:dir(rtl)) .d2l-tabs-container-ext {
+				padding-left: 0;
+				padding-right: 4px;
 			}
 
 		</style>
