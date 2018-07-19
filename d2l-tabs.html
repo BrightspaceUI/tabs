@@ -741,19 +741,39 @@ Polymer-based web components for tabs
 
 						var tabsContainer = this._getTabsContainer();
 
-						// show/hide left scroll button
-						if (this._translationValue < 0 && !tabsContainer.hasAttribute('allow-scroll-left')) {
-							tabsContainer.setAttribute('allow-scroll-left', 'allow-scroll-left');
-						} else if (this._translationValue >= 0 && tabsContainer.hasAttribute('allow-scroll-left')) {
-							tabsContainer.removeAttribute('allow-scroll-left');
-						}
-
-						// show/hide right scroll button
 						var lastTabMeasures = measures.tabRects[measures.tabRects.length - 1];
-						if (lastTabMeasures.offsetLeft + lastTabMeasures.rect.width + this._translationValue > measures.tabsContainerRect.width) {
-							tabsContainer.setAttribute('allow-scroll-right', 'allow-scroll-right');
+						if (!measures.isRTL) {
+
+							// show/hide previous/left scroll button
+							if (this._translationValue < 0 && !tabsContainer.hasAttribute('allow-scroll-left')) {
+								tabsContainer.setAttribute('allow-scroll-left', 'allow-scroll-left');
+							} else if (this._translationValue >= 0 && tabsContainer.hasAttribute('allow-scroll-left')) {
+								tabsContainer.removeAttribute('allow-scroll-left');
+							}
+
+							// show/hide next/right scroll button
+							if (lastTabMeasures.offsetLeft + lastTabMeasures.rect.width + this._translationValue > measures.tabsContainerRect.width) {
+								tabsContainer.setAttribute('allow-scroll-right', 'allow-scroll-right');
+							} else {
+								tabsContainer.removeAttribute('allow-scroll-right');
+							}
+
 						} else {
-							tabsContainer.removeAttribute('allow-scroll-right');
+
+							// show/hide previous/left scroll button (rtl)
+							if (this._translationValue > 0 && !tabsContainer.hasAttribute('allow-scroll-left')) {
+								tabsContainer.setAttribute('allow-scroll-left', 'allow-scroll-left');
+							} else if (this._translationValue <= 0 && tabsContainer.hasAttribute('allow-scroll-left')) {
+								tabsContainer.removeAttribute('allow-scroll-left');
+							}
+
+							// show/hide next/right scroll button (rtl)
+							if (lastTabMeasures.offsetLeft + this._translationValue < 0) {
+								tabsContainer.setAttribute('allow-scroll-right', 'allow-scroll-right');
+							} else {
+								tabsContainer.removeAttribute('allow-scroll-right');
+							}
+
 						}
 
 						resolve();
