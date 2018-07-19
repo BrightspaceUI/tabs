@@ -392,12 +392,14 @@ Polymer-based web components for tabs
 			},
 
 			_getMeasures: function() {
+				var isRTL;
 				return Promise.all([
 					this._measures ? Promise.resolve(this._measures) : this._updateMeasures(),
 					new Promise(function(resolve) {
 
 						fastdom.mutate(function() {
 							fastdom.measure(function() {
+								isRTL = (getComputedStyle(this).direction === 'rtl');
 								var tabMeasures = [];
 								for (var i = 0; i < this._tabs.length; i++) {
 									tabMeasures.push(this._tabs[i]._getMeasures());
@@ -409,6 +411,7 @@ Polymer-based web components for tabs
 					}.bind(this))
 				]).then(function(all) {
 					return {
+						isRTL: isRTL,
 						tabsContainerRect: all[0].rect,
 						tabsContainerListRect: all[0].listRect,
 						tabRects: all[1]
