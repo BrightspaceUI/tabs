@@ -268,7 +268,7 @@ Polymer-based web components for tabs
 						if (!measures.isRTL) {
 							if (newTranslationValue >= 0) return;
 						} else {
-							if (newTranslationValue <=0) return;
+							if (newTranslationValue <= 0) return;
 						}
 
 						return this._tryExpandTabsContainer(measures).then(function(expanded) {
@@ -573,7 +573,7 @@ Polymer-based web components for tabs
 
 						} else {
 
-							var newTranslationValue = (this._translationValue - measures.tabsContainerRect.width + this._SCROLL_BUTTON_WIDTH);
+							newTranslationValue = (this._translationValue - measures.tabsContainerRect.width + this._SCROLL_BUTTON_WIDTH);
 							isOverflowingPrevious = (newTranslationValue > 0);
 							if (!isOverflowingPrevious) {
 								newTranslationValue = 0;
