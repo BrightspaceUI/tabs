@@ -64,8 +64,8 @@ Polymer-based web components for tabs
 					left: 0;
 			}
 
-			.d2l-tabs-scroll-left-container,
-			.d2l-tabs-scroll-right-container {
+			.d2l-tabs-scroll-previous-container,
+			.d2l-tabs-scroll-next-container {
 				background-color: white;
 				box-shadow: 0 0 12px 18px white;
 				display: none;
@@ -75,51 +75,51 @@ Polymer-based web components for tabs
 				z-index: 1;
 			}
 
-			.d2l-tabs-scroll-left-container {
+			.d2l-tabs-scroll-previous-container {
 				left: 0;
 				margin-left: 4px;
 			}
 
 			/* P2-shadow */
-			:host-context([dir="rtl"]) .d2l-tabs-scroll-left-container {
+			:host-context([dir="rtl"]) .d2l-tabs-scroll-previous-container {
 				left: auto;
 				margin-left: 0;
 				margin-right: 4px;
 				right: 0;
 			}
 			/* P1-shady, P2-shady */
-			:host(:dir(rtl)) .d2l-tabs-scroll-left-container {
+			:host(:dir(rtl)) .d2l-tabs-scroll-previous-container {
 				left: auto;
 				margin-left: 0;
 				margin-right: 4px;
 				right: 0;
 			}
 
-			.d2l-tabs-container[allow-scroll-left] > .d2l-tabs-scroll-left-container {
+			.d2l-tabs-container[allow-scroll-previous] > .d2l-tabs-scroll-previous-container {
 				display: inline-block;
 			}
 
-			.d2l-tabs-scroll-right-container {
+			.d2l-tabs-scroll-next-container {
 				margin-right: 4px;
 				right: 0;
 			}
 
 			/* P2-shadow */
-			:host-context([dir="rtl"]) .d2l-tabs-scroll-right-container {
+			:host-context([dir="rtl"]) .d2l-tabs-scroll-next-container {
 				left: 0;
 				margin-left: 4px;
 				margin-right: 0;
 				right: auto;
 			}
 			/* P1-shady, P2-shady */
-			:host(:dir(rtl)) .d2l-tabs-scroll-right-container {
+			:host(:dir(rtl)) .d2l-tabs-scroll-next-container {
 				left: 0;
 				margin-left: 4px;
 				margin-right: 0;
 				right: auto;
 			}
 
-			.d2l-tabs-container[allow-scroll-right] > .d2l-tabs-scroll-right-container {
+			.d2l-tabs-container[allow-scroll-next] > .d2l-tabs-scroll-next-container {
 				display: inline-block;
 			}
 
@@ -183,13 +183,13 @@ Polymer-based web components for tabs
 		</style>
 		<div class="d2l-tabs-layout">
 			<div class="d2l-tabs-container">
-				<div class="d2l-tabs-scroll-left-container">
+				<div class="d2l-tabs-scroll-previous-container">
 					<button class="d2l-tabs-scroll-button" title="[[localize('scroll.previous')]]"><d2l-icon icon="d2l-tier1:chevron-left"></d2l-icon></button>
 				</div>
 				<span class="d2l-tabs-focus-start" tabindex="0"></span>
 				<div class="d2l-tabs-container-list"></div>
 				<span class="d2l-tabs-focus-end" tabindex="0"></span>
-				<div class="d2l-tabs-scroll-right-container">
+				<div class="d2l-tabs-scroll-next-container">
 					<button class="d2l-tabs-scroll-button" title="[[localize('scroll.next')]]"><d2l-icon icon="d2l-tier1:chevron-right"></d2l-icon></button>
 				</div>
 			</div>
@@ -250,8 +250,8 @@ Polymer-based web components for tabs
 				this._handleFocusTrapStart = this._handleFocusTrapStart.bind(this);
 				this._handleFocusTrapEnd = this._handleFocusTrapEnd.bind(this);
 				this._handleResize = this._handleResize.bind(this);
-				this._handleScrollLeft = this._handleScrollLeft.bind(this);
-				this._handleScrollRight = this._handleScrollRight.bind(this);
+				this._handleScrollPrevious = this._handleScrollPrevious.bind(this);
+				this._handleScrollNext = this._handleScrollNext.bind(this);
 			},
 
 			_handleOnBeforeFocus: function(tab) {
@@ -299,8 +299,8 @@ Polymer-based web components for tabs
 					tabsList.addEventListener('focus', this._handleTabFocus, true);
 					Polymer.dom(this.root).querySelector('.d2l-tabs-focus-start').addEventListener('focus', this._handleFocusTrapStart);
 					Polymer.dom(this.root).querySelector('.d2l-tabs-focus-end').addEventListener('focus', this._handleFocusTrapEnd);
-					Polymer.dom(this.root).querySelector('.d2l-tabs-scroll-right-container button').addEventListener('click', this._handleScrollRight);
-					Polymer.dom(this.root).querySelector('.d2l-tabs-scroll-left-container button').addEventListener('click', this._handleScrollLeft);
+					Polymer.dom(this.root).querySelector('.d2l-tabs-scroll-next-container button').addEventListener('click', this._handleScrollNext);
+					Polymer.dom(this.root).querySelector('.d2l-tabs-scroll-previous-container button').addEventListener('click', this._handleScrollPrevious);
 
 					window.addEventListener('resize', this._handleResize);
 				}.bind(this));
@@ -312,8 +312,8 @@ Polymer-based web components for tabs
 
 				Polymer.dom(this.root).querySelector('.d2l-tabs-focus-start').removeEventListener('focus', this._handleFocusTrapStart);
 				Polymer.dom(this.root).querySelector('.d2l-tabs-focus-end').removeEventListener('focus', this._handleFocusTrapEnd);
-				Polymer.dom(this.root).querySelector('.d2l-tabs-scroll-right-container button').removeEventListener('click', this._handleScrollRight);
-				Polymer.dom(this.root).querySelector('.d2l-tabs-scroll-left-container button').removeEventListener('click', this._handleScrollLeft);
+				Polymer.dom(this.root).querySelector('.d2l-tabs-scroll-next-container button').removeEventListener('click', this._handleScrollNext);
+				Polymer.dom(this.root).querySelector('.d2l-tabs-scroll-previous-container button').removeEventListener('click', this._handleScrollPrevious);
 
 				if (this._slotObserver) {
 					Polymer.dom(this).unobserveNodes(this._slotObserver);
@@ -547,7 +547,7 @@ Polymer-based web components for tabs
 				}.bind(this));
 			},
 
-			_handleScrollLeft: function() {
+			_handleScrollPrevious: function() {
 				this._getMeasures().then(function(measures) {
 
 					this._tryExpandTabsContainer(measures).then(function(expanded) {
@@ -588,7 +588,7 @@ Polymer-based web components for tabs
 						if (!isOverflowingPrevious) {
 							positionPromise.then(function() {
 								fastdom.mutate(function() {
-									Polymer.dom(this.root).querySelector('.d2l-tabs-scroll-right-container button').focus();
+									Polymer.dom(this.root).querySelector('.d2l-tabs-scroll-next-container button').focus();
 								}.bind(this));
 							}.bind(this));
 						}
@@ -598,7 +598,7 @@ Polymer-based web components for tabs
 				}.bind(this));
 			},
 
-			_handleScrollRight: function() {
+			_handleScrollNext: function() {
 				this._getMeasures().then(function(measures) {
 
 					this._tryExpandTabsContainer(measures).then(function(expanded) {
@@ -650,7 +650,7 @@ Polymer-based web components for tabs
 						if (!isOverflowingNext) {
 							positionPromise.then(function() {
 								fastdom.mutate(function() {
-									Polymer.dom(this.root).querySelector('.d2l-tabs-scroll-left-container button').focus();
+									Polymer.dom(this.root).querySelector('.d2l-tabs-scroll-previous-container button').focus();
 								}.bind(this));
 							}.bind(this));
 						}
@@ -773,11 +773,11 @@ Polymer-based web components for tabs
 									fastdom.mutate(function() {
 										tabsContainer.style.maxWidth = null;
 									});
-									if (!tabsContainer.hasAttribute('allow-scroll-right')) {
-										if (!tabsContainer.hasAttribute('allow-scroll-left')) {
+									if (!tabsContainer.hasAttribute('allow-scroll-next')) {
+										if (!tabsContainer.hasAttribute('allow-scroll-previous')) {
 											this._focusSelected();
 										} else {
-											Polymer.dom(this.root).querySelector('.d2l-tabs-scroll-left-container button').focus();
+											Polymer.dom(this.root).querySelector('.d2l-tabs-scroll-previous-container button').focus();
 										}
 									}
 									resolve(true);
@@ -831,33 +831,33 @@ Polymer-based web components for tabs
 						if (!measures.isRTL) {
 
 							// show/hide previous/left scroll button
-							if (this._translationValue < 0 && !tabsContainer.hasAttribute('allow-scroll-left')) {
-								tabsContainer.setAttribute('allow-scroll-left', 'allow-scroll-left');
-							} else if (this._translationValue >= 0 && tabsContainer.hasAttribute('allow-scroll-left')) {
-								tabsContainer.removeAttribute('allow-scroll-left');
+							if (this._translationValue < 0 && !tabsContainer.hasAttribute('allow-scroll-previous')) {
+								tabsContainer.setAttribute('allow-scroll-previous', 'allow-scroll-previous');
+							} else if (this._translationValue >= 0 && tabsContainer.hasAttribute('allow-scroll-previous')) {
+								tabsContainer.removeAttribute('allow-scroll-previous');
 							}
 
 							// show/hide next/right scroll button
 							if (lastTabMeasures.offsetLeft + lastTabMeasures.rect.width + this._translationValue > measures.tabsContainerRect.width) {
-								tabsContainer.setAttribute('allow-scroll-right', 'allow-scroll-right');
+								tabsContainer.setAttribute('allow-scroll-next', 'allow-scroll-next');
 							} else {
-								tabsContainer.removeAttribute('allow-scroll-right');
+								tabsContainer.removeAttribute('allow-scroll-next');
 							}
 
 						} else {
 
 							// show/hide previous/left scroll button (rtl)
-							if (this._translationValue > 0 && !tabsContainer.hasAttribute('allow-scroll-left')) {
-								tabsContainer.setAttribute('allow-scroll-left', 'allow-scroll-left');
-							} else if (this._translationValue <= 0 && tabsContainer.hasAttribute('allow-scroll-left')) {
-								tabsContainer.removeAttribute('allow-scroll-left');
+							if (this._translationValue > 0 && !tabsContainer.hasAttribute('allow-scroll-previous')) {
+								tabsContainer.setAttribute('allow-scroll-previous', 'allow-scroll-previous');
+							} else if (this._translationValue <= 0 && tabsContainer.hasAttribute('allow-scroll-previous')) {
+								tabsContainer.removeAttribute('allow-scroll-previous');
 							}
 
 							// show/hide next/right scroll button (rtl)
 							if (lastTabMeasures.offsetLeft + this._translationValue < 0) {
-								tabsContainer.setAttribute('allow-scroll-right', 'allow-scroll-right');
+								tabsContainer.setAttribute('allow-scroll-next', 'allow-scroll-next');
 							} else {
-								tabsContainer.removeAttribute('allow-scroll-right');
+								tabsContainer.removeAttribute('allow-scroll-next');
 							}
 
 						}
