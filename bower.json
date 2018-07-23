@@ -19,12 +19,12 @@
     "d2l-fastdom-import": "https://github.com/Brightspace/fastdom-import.git#v1.0.2",
     "d2l-icons": "^5.0.0",
     "d2l-localize-behavior": "^1.0.0",
-    "d2l-polymer-behaviors": "^1.6.1",
+    "d2l-polymer-behaviors": "^1.6.2",
     "d2l-typography": "^6.1.2",
     "polymer": "1.9 - 2"
   },
   "devDependencies": {
-    "d2l-button": "^4.2.0",
+    "d2l-button": "^4.5.1",
     "iron-component-page": "^2.0.0",
     "iron-demo-helpers": "^2.0.0",
     "iron-test-helpers": "^2.0.0",
