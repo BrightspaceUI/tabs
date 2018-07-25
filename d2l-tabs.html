@@ -515,7 +515,11 @@ Polymer-based web components for tabs
 
 					this._tabs = Array.prototype.slice.call(tabsList.querySelectorAll('[tabindex]'));
 
-					this._initializeSelectedTab(selectedTab);
+					this._initializeSelectedTab(selectedTab).then(function() {
+						this.dispatchEvent(new CustomEvent(
+							'd2l-tabs-initialized', { bubbles: true, composed: true }
+						));
+					}.bind(this));
 
 				}.bind(this));
 
@@ -713,7 +717,7 @@ Polymer-based web components for tabs
 					selectedTab = this._tabs[0];
 				}
 
-				this._updateTabsContainerWidth(selectedTab).then(function() {
+				return this._updateTabsContainerWidth(selectedTab).then(function() {
 					this._updateScrollPosition(selectedTab);
 				}.bind(this));
 

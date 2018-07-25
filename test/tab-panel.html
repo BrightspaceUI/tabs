@@ -1,0 +1,72 @@
+<!doctype html>
+<html>
+	<head>
+		<meta charset="UTF-8">
+		<title>d2l-tab-panel tests</title>
+		<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+		<script src="../../webcomponentsjs/webcomponents-lite.js"></script>
+		<script src="../../web-component-tester/browser.js"></script>
+		<link rel="import" href="../../iron-test-helpers/iron-test-helpers.html">
+		<link rel="import" href="../d2l-tab-panel.html">
+	</head>
+	<body>
+
+		<test-fixture id="panelFixture">
+			<template>
+				<d2l-tab-panel text="Biology"><div id="content">panel content<div></d2l-tab-panel>
+			</template>
+		</test-fixture>
+
+		<script>
+			describe('<d2l-tab-panel>', function() {
+
+				var panel;
+
+				beforeEach(function(done) {
+					panel = fixture('panelFixture');
+					Polymer.RenderStatus.afterNextRender(panel, done);
+				});
+
+				it('has role="tabpanel"', function() {
+					expect(panel.getAttribute('role')).to.equal('tabpanel');
+				});
+
+				it('has aria-label set to the specified text', function() {
+					expect(panel.getAttribute('aria-label')).to.equal(panel.text);
+				});
+
+				it('has default whitespace at top and bottom or panel', function() {
+					expect(getComputedStyle(panel, null).getPropertyValue('margin-top')).to.not.equal('0px');
+					expect(getComputedStyle(panel, null).getPropertyValue('margin-right')).to.equal('0px');
+					expect(getComputedStyle(panel, null).getPropertyValue('margin-bottom')).to.not.equal('0px');
+					expect(getComputedStyle(panel, null).getPropertyValue('margin-left')).to.equal('0px');
+				});
+
+				it('drops whitespace when no-padding specified', function() {
+					panel.noPadding = true;
+					expect(getComputedStyle(panel, null).getPropertyValue('margin-top')).to.equal('0px');
+					expect(getComputedStyle(panel, null).getPropertyValue('margin-right')).to.equal('0px');
+					expect(getComputedStyle(panel, null).getPropertyValue('margin-bottom')).to.equal('0px');
+					expect(getComputedStyle(panel, null).getPropertyValue('margin-left')).to.equal('0px');
+				});
+
+				it('displays the panel when selected', function(done) {
+					panel.addEventListener('d2l-tab-panel-selected', function() {
+						expect(getComputedStyle(panel, null).getPropertyValue('display')).to.equal('block');
+						done();
+					});
+					expect(getComputedStyle(panel, null).getPropertyValue('display')).to.equal('none');
+					panel.selected = true;
+				});
+
+				it('dispatches event when selected', function(done) {
+					panel.addEventListener('d2l-tab-panel-selected', function() {
+						done();
+					});
+					panel.selected = true;
+				});
+
+			});
+		</script>
+	</body>
+</html>
