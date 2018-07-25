@@ -1,0 +1,73 @@
+<!doctype html>
+<html>
+	<head>
+		<meta charset="UTF-8">
+		<title>d2l-tab tests</title>
+		<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+		<script src="../../webcomponentsjs/webcomponents-lite.js"></script>
+		<script src="../../web-component-tester/browser.js"></script>
+		<link rel="import" href="../../iron-test-helpers/iron-test-helpers.html">
+		<link rel="import" href="../d2l-tab.html">
+	</head>
+	<body>
+
+		<test-fixture id="tabFixture">
+			<template>
+					<d2l-tab text="Biology"></d2l-tab>
+			</template>
+		</test-fixture>
+
+		<script>
+			describe('<d2l-tab>', function() {
+
+				var tab;
+
+				beforeEach(function(done) {
+					tab = fixture('tabFixture');
+					Polymer.RenderStatus.afterNextRender(tab, done);
+				});
+
+				it('has role="tab"', function() {
+					expect(tab.getAttribute('role')).to.equal('tab');
+				});
+
+				it('has tabindex -1', function() {
+					expect(tab.tabIndex).to.equal(-1);
+				});
+
+				it('dispatches event when selected', function(done) {
+					tab.addEventListener('d2l-tab-selected', function() {
+						expect(tab.getAttribute('aria-selected')).to.equal('true');
+						done();
+					});
+					tab.selected = true;
+				});
+
+				it('selects tabs when clicked', function(done) {
+					tab.addEventListener('d2l-tab-selected', function() {
+						expect(tab.getAttribute('aria-selected')).to.equal('true');
+						done();
+					});
+					tab.click();
+				});
+
+				it('selects tabs when enter key pressed', function(done) {
+					tab.addEventListener('d2l-tab-selected', function() {
+						expect(tab.getAttribute('aria-selected')).to.equal('true');
+						done();
+					});
+					MockInteractions.keyDownOn(tab, 13);
+				});
+
+				it('selects tabs when space key pressed', function(done) {
+					tab.addEventListener('d2l-tab-selected', function() {
+						expect(tab.getAttribute('aria-selected')).to.equal('true');
+						done();
+					});
+					MockInteractions.keyDownOn(tab, 32);
+				});
+
+			});
+		</script>
+	</body>
+</html>
