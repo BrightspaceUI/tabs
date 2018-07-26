@@ -707,7 +707,7 @@ Polymer-based web components for tabs
 			_initializeSelectedTab: function(selectedTab) {
 
 				if (this._initialized || this._tabs.length === 0) {
-					return;
+					return Promise.resolve();
 				}
 
 				this._initialized = true;
@@ -718,7 +718,7 @@ Polymer-based web components for tabs
 				}
 
 				return this._updateTabsContainerWidth(selectedTab).then(function() {
-					this._updateScrollPosition(selectedTab);
+					return this._updateScrollPosition(selectedTab);
 				}.bind(this));
 
 			},
