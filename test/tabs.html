@@ -12,6 +12,12 @@
 	</head>
 	<body>
 
+		<test-fixture id="noTabs">
+			<template>
+				<d2l-tabs></d2l-tabs>
+			</template>
+		</test-fixture>
+
 		<test-fixture id="basicTabs">
 			<template>
 				<d2l-tabs>
@@ -77,6 +83,22 @@
 					tabList.addEventListener('d2l-tabs-initialized', handler);
 				};
 
+				describe('no tabs', function() {
+
+					beforeEach(function() {
+						tabList = fixture('noTabs');
+					});
+
+					it('has role="tablist"', function() {
+						expect(tabList.getAttribute('role')).to.equal('tablist');
+					});
+
+					it('has 0 tabs', function() {
+						var tabs = tabList._getTabsContainer().querySelectorAll('d2l-tab');
+						expect(tabs.length).to.equal(0);
+					});
+
+				});
 
 				describe('basic tabs', function() {
 
