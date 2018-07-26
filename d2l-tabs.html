@@ -718,7 +718,7 @@ Polymer-based web components for tabs
 				}
 
 				return this._updateTabsContainerWidth(selectedTab).then(function() {
-					this._updateScrollPosition(selectedTab);
+					return this._updateScrollPosition(selectedTab);
 				}.bind(this));
 
 			},
