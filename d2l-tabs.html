@@ -290,7 +290,7 @@ Polymer-based web components for tabs
 				Polymer.RenderStatus.afterNextRender(this, function() {
 
 					var bgColor = this._getComputedBackgroundColor();
-					if (bgColor && bgColor !== 'rgb(255, 255, 255)' && bgColor != 'rgba(255, 255, 255, 1)') {
+					if (bgColor && bgColor !== 'rgb(255, 255, 255)' && bgColor !== 'rgba(255, 255, 255, 1)') {
 						this.updateStyles({'--d2l-tabs-background-color': bgColor});
 					}
 
@@ -428,7 +428,7 @@ Polymer-based web components for tabs
 				var bgColor = null;
 				D2L.Dom.findComposedAncestor(this, function(node) {
 					if (!node || node.nodeType !== 1) return false;
-					var nodeColor = getComputedStyle(node, null)["backgroundColor"];
+					var nodeColor = getComputedStyle(node, null)['backgroundColor'];
 					if (nodeColor === 'rgba(0, 0, 0, 0)' || nodeColor === 'transparent') return false;
 					bgColor = nodeColor;
 					return true;
