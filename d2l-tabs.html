@@ -4,6 +4,7 @@
 <link rel="import" href="../d2l-icons/d2l-icon.html">
 <link rel="import" href="../d2l-icons/tier1-icons.html">
 <link rel="import" href="../d2l-polymer-behaviors/d2l-id.html">
+<link rel="import" href="../d2l-polymer-behaviors/d2l-dom.html">
 <link rel="import" href="../d2l-polymer-behaviors/d2l-dom-focus.html">
 <link rel="import" href="../d2l-polymer-behaviors/d2l-focusable-arrowkeys-behavior.html">
 <link rel="import" href="d2l-tab.html">
@@ -23,6 +24,7 @@ Polymer-based web components for tabs
 		<style>
 
 			:host {
+				--d2l-tabs-background-color: white;
 				box-sizing: border-box;
 				display: block;
 			}
@@ -66,8 +68,8 @@ Polymer-based web components for tabs
 
 			.d2l-tabs-scroll-previous-container,
 			.d2l-tabs-scroll-next-container {
-				background-color: white;
-				box-shadow: 0 0 12px 18px white;
+				background-color: var(--d2l-tabs-background-color);
+				box-shadow: 0 0 12px 18px var(--d2l-tabs-background-color);
 				display: none;
 				height: 100%;
 				position: absolute;
@@ -286,6 +288,12 @@ Polymer-based web components for tabs
 
 			attached: function() {
 				Polymer.RenderStatus.afterNextRender(this, function() {
+
+					var bgColor = this._getComputedBackgroundColor();
+					if (bgColor && bgColor !== 'rgb(255, 255, 255)') {
+						this.updateStyles({'--d2l-tabs-background-color': bgColor});
+					}
+
 					var tabsList = this._getTabsContainerList();
 
 					this._slotObserver = Polymer.dom(this).observeNodes(this._handleDomChanges);
@@ -413,6 +421,19 @@ Polymer-based web components for tabs
 						});
 					});
 				}
+			},
+
+			/* can be moved to PolymerBehaviors, keeping here for now since this is first time ever needed */
+			_getComputedBackgroundColor: function() {
+				var bgColor = null;
+				D2L.Dom.findComposedAncestor(this, function(node) {
+					if (!node || node.nodeType !== 1) return false;
+					var nodeColor = getComputedStyle(node, null)["backgroundColor"];
+					if (nodeColor === 'rgba(0, 0, 0, 0)') return false;
+					bgColor = nodeColor;
+					return true;
+				});
+				return bgColor;
 			},
 
 			_getFocusableTabs: function(tabs) {
