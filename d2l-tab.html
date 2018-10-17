@@ -179,6 +179,7 @@ Polymer-based web components for tab
 						'd2l-tab-selected', { bubbles: true, composed: true }
 					));
 				} else {
+					// Note: this must be specified in order for VoiceOver to correctly announce unselected tabs.
 					this.setAttribute('aria-selected', 'false');
 				}
 			},
