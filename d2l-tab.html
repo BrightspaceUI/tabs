@@ -82,7 +82,7 @@ Polymer-based web components for tab
 				cursor: pointer;
 			}
 
-			:host([aria-selected]:hover) {
+			:host([aria-selected="true"]:hover) {
 				color: inherit;
 				cursor: default;
 			}
@@ -93,12 +93,12 @@ Polymer-based web components for tab
 				box-shadow: none;
 			}
 
-			:host([aria-selected]:focus) .d2l-tab-selected-indicator {
+			:host([aria-selected="true"]:focus) .d2l-tab-selected-indicator {
 				border-top-color: var(--d2l-color-celestine);
 				box-shadow: 0 0 0 3px rgba(0, 111, 191, 0.3);
 			}
 
-			:host([aria-selected]) .d2l-tab-selected-indicator {
+			:host([aria-selected="true"]) .d2l-tab-selected-indicator {
 				display: block;
 			}
 
@@ -112,6 +112,7 @@ Polymer-based web components for tab
 			is: 'd2l-tab',
 
 			hostAttributes: {
+				'aria-selected': 'false',
 				'role': 'tab',
 				'tabindex': '-1'
 			},
@@ -178,7 +179,8 @@ Polymer-based web components for tab
 						'd2l-tab-selected', { bubbles: true, composed: true }
 					));
 				} else {
-					this.removeAttribute('aria-selected');
+					// Note: this must be specified in order for VoiceOver to correctly announce unselected tabs.
+					this.setAttribute('aria-selected', 'false');
 				}
 			},
 

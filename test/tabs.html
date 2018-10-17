@@ -113,7 +113,7 @@
 								expect(tabs[i].getAttribute('aria-selected')).to.equal('true');
 								expect(tabList.querySelector('#' + tabs[i].getAttribute('aria-controls')).hasAttribute('selected')).to.equal(true);
 							} else {
-								expect(tabs[i].getAttribute('aria-selected')).to.equal(null);
+								expect(tabs[i].getAttribute('aria-selected')).to.equal('false');
 								expect(tabList.querySelector('#' + tabs[i].getAttribute('aria-controls')).hasAttribute('selected')).to.equal(false);
 							}
 						}
