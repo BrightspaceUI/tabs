@@ -221,9 +221,9 @@ Polymer-based web components for tabs
 				},
 
 				/**
-				 * Indicates whether tabs are automatically activated on focus.
+				 * Indicates that tabs are automatically activated on focus.
 				 */
-				noAutoSelect: {
+				autoSelect: {
 					type: Boolean
 				},
 
@@ -689,7 +689,7 @@ Polymer-based web components for tabs
 				if (e.target.tagName !== 'D2L-TAB') {
 					return;
 				}
-				if (!this.noAutoSelect && !e.target.selected) {
+				if (this.autoSelect && !e.target.selected) {
 					e.target.selected = true;
 				}
 			},

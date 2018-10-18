@@ -151,8 +151,9 @@
 						expectSelected(tabs[0], tabs);
 					});
 
-					it('selects tab if focused', function(done) {
+					it('selects tab if auto-select is specific and tab is focused', function(done) {
 						var tabs = tabList._getTabsContainer().querySelectorAll('d2l-tab');
+						tabList.autoSelect = true;
 						expectSelectedEvent(tabs[2], tabs, done);
 						MockInteractions.focus(tabs[2]);
 					});
@@ -164,9 +165,8 @@
 						tabPanels[2].selected = true;
 					});
 
-					it('does not select tab when focused if no-auto-select is specified', function(done) {
+					it('does not select tab when focused if auto-select is not specified', function(done) {
 						var tabs = tabList._getTabsContainer().querySelectorAll('d2l-tab');
-						tabList.noAutoSelect = true;
 						MockInteractions.focus(tabs[2]);
 						setTimeout(function() {
 							expectSelected(tabs[0], tabs);
