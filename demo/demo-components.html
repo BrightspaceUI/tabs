@@ -3,7 +3,7 @@
 <link rel="import" href="../d2l-tabs.html">
 
 <dom-module id="d2l-demo-templated-tabs">
-	<template>
+	<template strip-whitespace>
 		<d2l-tabs>
 			<template items="{{tabs}}" is="dom-repeat">
 				<d2l-tab-panel text="{{item.text}}">{{item.content}}<a href="http://www.google.com">google</a></d2l-tab-panel>
