@@ -711,9 +711,8 @@ Polymer-based web components for tabs
 
 				this._updateScrollPosition(selectedTab);
 
-				selectedPanel.selected = true;
-
 				fastdom.mutate(function() {
+					selectedPanel.selected = true;
 					for (var i = 0; i < this._tabs.length; i++) {
 						var tab = this._tabs[i];
 						if (tab.selected && tab !== selectedTab) {
