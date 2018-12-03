@@ -108,7 +108,7 @@
 					});
 
 					var expectSelected = function(tab, tabs) {
-						for(var i = 0; i < tabs.length; i++) {
+						for (var i = 0; i < tabs.length; i++) {
 							if (tabs[i] === tab) {
 								expect(tabs[i].getAttribute('aria-selected')).to.equal('true');
 								expect(tabList.querySelector('#' + tabs[i].getAttribute('aria-controls')).hasAttribute('selected')).to.equal(true);
@@ -140,7 +140,7 @@
 					it('wires up the tabs and tab panels', function() {
 						var tabs = tabList._getTabsContainer().querySelectorAll('d2l-tab');
 						var tabPanels = tabList.querySelectorAll('d2l-tab-panel');
-						for(var i = 0; i < tabPanels.length; i++) {
+						for (var i = 0; i < tabPanels.length; i++) {
 							expect(tabs[i].getAttribute('aria-controls')).to.equal(tabPanels[i].id);
 							expect(tabs[i].getAttribute('title')).to.equal(tabPanels[i].getAttribute('text'));
 						}
