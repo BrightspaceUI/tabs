@@ -4,11 +4,12 @@
 		<meta charset="UTF-8">
 		<title>d2l-tabs tests</title>
 		<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
-		<script src="../../webcomponentsjs/webcomponents-lite.js"></script>
-		<script src="../../web-component-tester/browser.js"></script>
-		<script src="../../iron-test-helpers/mock-interactions.js"></script>
-		<link rel="import" href="../../d2l-polymer-behaviors/d2l-dom-focus.html">
-		<link rel="import" href="../d2l-tabs.html">
+		<script src="../../@babel/polyfill/browser.js"></script>
+		<script src="../../@webcomponents/webcomponentsjs/webcomponents-bundle.js"></script>
+		<script src="../../wct-browser-legacy/browser.js"></script>
+		<script src="../../@polymer/iron-test-helpers/mock-interactions.js" type="module"></script>
+		<script type="module" src="../../d2l-polymer-behaviors/d2l-dom-focus.js"></script>
+		<script type="module" src="../d2l-tabs.js"></script>
 	</head>
 	<body>
 
@@ -64,231 +65,233 @@
 			</template>
 		</test-fixture>
 
-		<script>
-			describe('<d2l-tabs>', function() {
+		<script type="module">
+import 'd2l-polymer-behaviors/d2l-dom-focus.js';
+import '../d2l-tabs.js';
+describe('<d2l-tabs>', function() {
 
-				var tabList;
+	var tabList;
 
-				var initialized = function(tabList, cb) {
-					var handler = function() {
-						tabList.removeEventListener('d2l-tabs-initialized', handler);
-						requestAnimationFrame(function() {
-							requestAnimationFrame(function() {
-								requestAnimationFrame(function() {
-									cb();
-								});
-							});
-						});
-					};
-					tabList.addEventListener('d2l-tabs-initialized', handler);
-				};
-
-				describe('no tabs', function() {
-
-					beforeEach(function() {
-						tabList = fixture('noTabs');
+	var initialized = function(tabList, cb) {
+		var handler = function() {
+			tabList.removeEventListener('d2l-tabs-initialized', handler);
+			requestAnimationFrame(function() {
+				requestAnimationFrame(function() {
+					requestAnimationFrame(function() {
+						cb();
 					});
-
-					it('has role="tablist"', function() {
-						expect(tabList.getAttribute('role')).to.equal('tablist');
-					});
-
-					it('has 0 tabs', function() {
-						var tabs = tabList._getTabsContainer().querySelectorAll('d2l-tab');
-						expect(tabs.length).to.equal(0);
-					});
-
 				});
-
-				describe('basic tabs', function() {
-
-					beforeEach(function(done) {
-						tabList = fixture('basicTabs');
-						initialized(tabList, done);
-					});
-
-					var expectSelected = function(tab, tabs) {
-						for (var i = 0; i < tabs.length; i++) {
-							if (tabs[i] === tab) {
-								expect(tabs[i].getAttribute('aria-selected')).to.equal('true');
-								expect(tabList.querySelector('#' + tabs[i].getAttribute('aria-controls')).hasAttribute('selected')).to.equal(true);
-							} else {
-								expect(tabs[i].getAttribute('aria-selected')).to.equal('false');
-								expect(tabList.querySelector('#' + tabs[i].getAttribute('aria-controls')).hasAttribute('selected')).to.equal(false);
-							}
-						}
-					};
-
-					var expectSelectedEvent = function(tab, tabs, cb) {
-						tabList.addEventListener('d2l-tab-selected', function() {
-							requestAnimationFrame(function() {
-								expectSelected(tab, tabs);
-								cb();
-							});
-						});
-					};
-
-					it('has role="tablist"', function() {
-						expect(tabList.getAttribute('role')).to.equal('tablist');
-					});
-
-					it('has 3 tabs', function() {
-						var tabs = tabList._getTabsContainer().querySelectorAll('d2l-tab');
-						expect(tabs.length).to.equal(3);
-					});
-
-					it('wires up the tabs and tab panels', function() {
-						var tabs = tabList._getTabsContainer().querySelectorAll('d2l-tab');
-						var tabPanels = tabList.querySelectorAll('d2l-tab-panel');
-						for (var i = 0; i < tabPanels.length; i++) {
-							expect(tabs[i].getAttribute('aria-controls')).to.equal(tabPanels[i].id);
-							expect(tabs[i].getAttribute('title')).to.equal(tabPanels[i].getAttribute('text'));
-						}
-					});
-
-					it('selects the first tab if selection is not specified', function() {
-						var tabs = tabList._getTabsContainer().querySelectorAll('d2l-tab');
-						expectSelected(tabs[0], tabs);
-					});
-
-					it('selects tab if auto-select is specific and tab is focused', function(done) {
-						var tabs = tabList._getTabsContainer().querySelectorAll('d2l-tab');
-						tabList.autoSelect = true;
-						expectSelectedEvent(tabs[2], tabs, done);
-						MockInteractions.focus(tabs[2]);
-					});
-
-					it('selects tab if panel is selected', function(done) {
-						var tabs = tabList._getTabsContainer().querySelectorAll('d2l-tab');
-						var tabPanels = tabList.querySelectorAll('d2l-tab-panel');
-						expectSelectedEvent(tabs[2], tabs, done);
-						tabPanels[2].selected = true;
-					});
-
-					it('does not select tab when focused if auto-select is not specified', function(done) {
-						var tabs = tabList._getTabsContainer().querySelectorAll('d2l-tab');
-						MockInteractions.focus(tabs[2]);
-						setTimeout(function() {
-							expectSelected(tabs[0], tabs);
-							done();
-						}, 500);
-					});
-
-					it('does not show the scroll buttons', function(done) {
-						expect(tabList._getTabsContainer().hasAttribute('allow-scroll-previous')).to.equal(false);
-						expect(tabList._getTabsContainer().hasAttribute('allow-scroll-next')).to.equal(false);
-						tabList._getMeasures().then(function(measures) {
-							expect(measures.tabsContainerRect.width > measures.totalTabsWidth).to.equal(true);
-							done();
-						});
-					});
-
-				});
-
-				describe('overflowing tabs', function() {
-
-					beforeEach(function(done) {
-						tabList = fixture('overflowingTabs').querySelector('d2l-tabs');
-						initialized(tabList, done);
-					});
-
-					it('shows the next scroll button', function(done) {
-						expect(tabList._getTabsContainer().hasAttribute('allow-scroll-previous')).to.equal(false);
-						expect(tabList._getTabsContainer().hasAttribute('allow-scroll-next')).to.equal(true);
-						tabList._getMeasures().then(function(measures) {
-							expect(measures.tabsContainerRect.width < measures.totalTabsWidth).to.equal(true);
-							done();
-						});
-					});
-
-					it('shows the previous scroll button and hides the next scroll button after scrolling next', function(done) {
-						var nextButton = tabList._getTabsContainer().querySelector('.d2l-tabs-scroll-next-container button');
-						nextButton.click();
-						setTimeout(function() {
-							expect(tabList._getTabsContainer().hasAttribute('allow-scroll-previous')).to.equal(true);
-							expect(tabList._getTabsContainer().hasAttribute('allow-scroll-next')).to.equal(false);
-							done();
-						}, 400);
-					});
-
-					it('focuses on the previous scroll button after scrolling and hiding next button', function(done) {
-						var previousButton = tabList._getTabsContainer().querySelector('.d2l-tabs-scroll-previous-container button');
-						var nextButton = tabList._getTabsContainer().querySelector('.d2l-tabs-scroll-next-container button');
-						setTimeout(function() {
-							expect(D2L.Dom.Focus.getComposedActiveElement()).to.equal(previousButton);
-							done();
-						}, 400);
-						nextButton.click();
-					});
-
-					it('focuses on the next scroll button after scrolling and hiding previous button', function(done) {
-						var previousButton = tabList._getTabsContainer().querySelector('.d2l-tabs-scroll-previous-container button');
-						var nextButton = tabList._getTabsContainer().querySelector('.d2l-tabs-scroll-next-container button');
-						setTimeout(function() {
-							previousButton.click();
-							setTimeout(function() {
-								expect(D2L.Dom.Focus.getComposedActiveElement()).to.equal(nextButton);
-								done();
-							}, 400);
-						}, 400);
-						nextButton.click();
-					});
-
-					it('scrolls when moving focus to tab overflowing', function(done) {
-						setTimeout(function() {
-							expect(tabList._getTabsContainer().hasAttribute('allow-scroll-previous')).to.equal(true);
-							expect(tabList._getTabsContainer().hasAttribute('allow-scroll-next')).to.equal(false);
-							done();
-						}, 400);
-						var tabs = tabList._getTabsContainer().querySelectorAll('d2l-tab');
-						MockInteractions.keyDownOn(tabs[0], 37);
-					});
-
-				});
-
-				describe('max initial tabs', function() {
-
-					beforeEach(function(done) {
-						tabList = fixture('maxTabs').querySelector('d2l-tabs');
-						initialized(tabList, done);
-					});
-
-					it('shows the next scroll button', function(done) {
-						expect(tabList._getTabsContainer().hasAttribute('allow-scroll-previous')).to.equal(false);
-						expect(tabList._getTabsContainer().hasAttribute('allow-scroll-next')).to.equal(true);
-						expect(tabList._getTabsContainer().hasAttribute('scroll-collapsed')).to.equal(true);
-						tabList._getMeasures().then(function(measures) {
-							expect(measures.tabsContainerRect.width < tabList._getTabsContainer().parentNode.getBoundingClientRect().width).to.equal(true);
-							expect(measures.tabsContainerRect.width < measures.totalTabsWidth).to.equal(true);
-							done();
-						});
-					});
-
-					it('expands the tab list container when the next scroll button is activated', function(done) {
-						var nextButton = tabList._getTabsContainer().querySelector('.d2l-tabs-scroll-next-container button');
-						setTimeout(function() {
-							expect(tabList._getTabsContainer().hasAttribute('allow-scroll-previous')).to.equal(true);
-							expect(tabList._getTabsContainer().hasAttribute('allow-scroll-next')).to.equal(false);
-							expect(tabList._getTabsContainer().hasAttribute('scroll-collapsed')).to.equal(false);
-							done();
-						}, 700);
-						nextButton.click();
-					});
-
-					it('expands the tab list container when focus moved overflowing tab', function(done) {
-						setTimeout(function() {
-							expect(tabList._getTabsContainer().hasAttribute('allow-scroll-previous')).to.equal(false);
-							expect(tabList._getTabsContainer().hasAttribute('allow-scroll-next')).to.equal(true);
-							expect(tabList._getTabsContainer().hasAttribute('scroll-collapsed')).to.equal(false);
-							done();
-						}, 400);
-						var tabs = tabList._getTabsContainer().querySelectorAll('d2l-tab');
-						MockInteractions.keyDownOn(tabs[2], 39);
-					});
-
-				});
-
 			});
-		</script>
+		};
+		tabList.addEventListener('d2l-tabs-initialized', handler);
+	};
+
+	describe('no tabs', function() {
+
+		beforeEach(function() {
+			tabList = fixture('noTabs');
+		});
+
+		it('has role="tablist"', function() {
+			expect(tabList.getAttribute('role')).to.equal('tablist');
+		});
+
+		it('has 0 tabs', function() {
+			var tabs = tabList._getTabsContainer().querySelectorAll('d2l-tab');
+			expect(tabs.length).to.equal(0);
+		});
+
+	});
+
+	describe('basic tabs', function() {
+
+		beforeEach(function(done) {
+			tabList = fixture('basicTabs');
+			initialized(tabList, done);
+		});
+
+		var expectSelected = function(tab, tabs) {
+			for (var i = 0; i < tabs.length; i++) {
+				if (tabs[i] === tab) {
+					expect(tabs[i].getAttribute('aria-selected')).to.equal('true');
+					expect(tabList.querySelector('#' + tabs[i].getAttribute('aria-controls')).hasAttribute('selected')).to.equal(true);
+				} else {
+					expect(tabs[i].getAttribute('aria-selected')).to.equal('false');
+					expect(tabList.querySelector('#' + tabs[i].getAttribute('aria-controls')).hasAttribute('selected')).to.equal(false);
+				}
+			}
+		};
+
+		var expectSelectedEvent = function(tab, tabs, cb) {
+			tabList.addEventListener('d2l-tab-selected', function() {
+				requestAnimationFrame(function() {
+					expectSelected(tab, tabs);
+					cb();
+				});
+			});
+		};
+
+		it('has role="tablist"', function() {
+			expect(tabList.getAttribute('role')).to.equal('tablist');
+		});
+
+		it('has 3 tabs', function() {
+			var tabs = tabList._getTabsContainer().querySelectorAll('d2l-tab');
+			expect(tabs.length).to.equal(3);
+		});
+
+		it('wires up the tabs and tab panels', function() {
+			var tabs = tabList._getTabsContainer().querySelectorAll('d2l-tab');
+			var tabPanels = tabList.querySelectorAll('d2l-tab-panel');
+			for (var i = 0; i < tabPanels.length; i++) {
+				expect(tabs[i].getAttribute('aria-controls')).to.equal(tabPanels[i].id);
+				expect(tabs[i].getAttribute('title')).to.equal(tabPanels[i].getAttribute('text'));
+			}
+		});
+
+		it('selects the first tab if selection is not specified', function() {
+			var tabs = tabList._getTabsContainer().querySelectorAll('d2l-tab');
+			expectSelected(tabs[0], tabs);
+		});
+
+		it('selects tab if auto-select is specific and tab is focused', function(done) {
+			var tabs = tabList._getTabsContainer().querySelectorAll('d2l-tab');
+			tabList.autoSelect = true;
+			expectSelectedEvent(tabs[2], tabs, done);
+			MockInteractions.focus(tabs[2]);
+		});
+
+		it('selects tab if panel is selected', function(done) {
+			var tabs = tabList._getTabsContainer().querySelectorAll('d2l-tab');
+			var tabPanels = tabList.querySelectorAll('d2l-tab-panel');
+			expectSelectedEvent(tabs[2], tabs, done);
+			tabPanels[2].selected = true;
+		});
+
+		it('does not select tab when focused if auto-select is not specified', function(done) {
+			var tabs = tabList._getTabsContainer().querySelectorAll('d2l-tab');
+			MockInteractions.focus(tabs[2]);
+			setTimeout(function() {
+				expectSelected(tabs[0], tabs);
+				done();
+			}, 500);
+		});
+
+		it('does not show the scroll buttons', function(done) {
+			expect(tabList._getTabsContainer().hasAttribute('allow-scroll-previous')).to.equal(false);
+			expect(tabList._getTabsContainer().hasAttribute('allow-scroll-next')).to.equal(false);
+			tabList._getMeasures().then(function(measures) {
+				expect(measures.tabsContainerRect.width > measures.totalTabsWidth).to.equal(true);
+				done();
+			});
+		});
+
+	});
+
+	describe('overflowing tabs', function() {
+
+		beforeEach(function(done) {
+			tabList = fixture('overflowingTabs').querySelector('d2l-tabs');
+			initialized(tabList, done);
+		});
+
+		it('shows the next scroll button', function(done) {
+			expect(tabList._getTabsContainer().hasAttribute('allow-scroll-previous')).to.equal(false);
+			expect(tabList._getTabsContainer().hasAttribute('allow-scroll-next')).to.equal(true);
+			tabList._getMeasures().then(function(measures) {
+				expect(measures.tabsContainerRect.width < measures.totalTabsWidth).to.equal(true);
+				done();
+			});
+		});
+
+		it('shows the previous scroll button and hides the next scroll button after scrolling next', function(done) {
+			var nextButton = tabList._getTabsContainer().querySelector('.d2l-tabs-scroll-next-container button');
+			nextButton.click();
+			setTimeout(function() {
+				expect(tabList._getTabsContainer().hasAttribute('allow-scroll-previous')).to.equal(true);
+				expect(tabList._getTabsContainer().hasAttribute('allow-scroll-next')).to.equal(false);
+				done();
+			}, 400);
+		});
+
+		it('focuses on the previous scroll button after scrolling and hiding next button', function(done) {
+			var previousButton = tabList._getTabsContainer().querySelector('.d2l-tabs-scroll-previous-container button');
+			var nextButton = tabList._getTabsContainer().querySelector('.d2l-tabs-scroll-next-container button');
+			setTimeout(function() {
+				expect(D2L.Dom.Focus.getComposedActiveElement()).to.equal(previousButton);
+				done();
+			}, 400);
+			nextButton.click();
+		});
+
+		it('focuses on the next scroll button after scrolling and hiding previous button', function(done) {
+			var previousButton = tabList._getTabsContainer().querySelector('.d2l-tabs-scroll-previous-container button');
+			var nextButton = tabList._getTabsContainer().querySelector('.d2l-tabs-scroll-next-container button');
+			setTimeout(function() {
+				previousButton.click();
+				setTimeout(function() {
+					expect(D2L.Dom.Focus.getComposedActiveElement()).to.equal(nextButton);
+					done();
+				}, 400);
+			}, 400);
+			nextButton.click();
+		});
+
+		it('scrolls when moving focus to tab overflowing', function(done) {
+			setTimeout(function() {
+				expect(tabList._getTabsContainer().hasAttribute('allow-scroll-previous')).to.equal(true);
+				expect(tabList._getTabsContainer().hasAttribute('allow-scroll-next')).to.equal(false);
+				done();
+			}, 400);
+			var tabs = tabList._getTabsContainer().querySelectorAll('d2l-tab');
+			MockInteractions.keyDownOn(tabs[0], 37);
+		});
+
+	});
+
+	describe('max initial tabs', function() {
+
+		beforeEach(function(done) {
+			tabList = fixture('maxTabs').querySelector('d2l-tabs');
+			initialized(tabList, done);
+		});
+
+		it('shows the next scroll button', function(done) {
+			expect(tabList._getTabsContainer().hasAttribute('allow-scroll-previous')).to.equal(false);
+			expect(tabList._getTabsContainer().hasAttribute('allow-scroll-next')).to.equal(true);
+			expect(tabList._getTabsContainer().hasAttribute('scroll-collapsed')).to.equal(true);
+			tabList._getMeasures().then(function(measures) {
+				expect(measures.tabsContainerRect.width < tabList._getTabsContainer().parentNode.getBoundingClientRect().width).to.equal(true);
+				expect(measures.tabsContainerRect.width < measures.totalTabsWidth).to.equal(true);
+				done();
+			});
+		});
+
+		it('expands the tab list container when the next scroll button is activated', function(done) {
+			var nextButton = tabList._getTabsContainer().querySelector('.d2l-tabs-scroll-next-container button');
+			setTimeout(function() {
+				expect(tabList._getTabsContainer().hasAttribute('allow-scroll-previous')).to.equal(true);
+				expect(tabList._getTabsContainer().hasAttribute('allow-scroll-next')).to.equal(false);
+				expect(tabList._getTabsContainer().hasAttribute('scroll-collapsed')).to.equal(false);
+				done();
+			}, 700);
+			nextButton.click();
+		});
+
+		it('expands the tab list container when focus moved overflowing tab', function(done) {
+			setTimeout(function() {
+				expect(tabList._getTabsContainer().hasAttribute('allow-scroll-previous')).to.equal(false);
+				expect(tabList._getTabsContainer().hasAttribute('allow-scroll-next')).to.equal(true);
+				expect(tabList._getTabsContainer().hasAttribute('scroll-collapsed')).to.equal(false);
+				done();
+			}, 400);
+			var tabs = tabList._getTabsContainer().querySelectorAll('d2l-tab');
+			MockInteractions.keyDownOn(tabs[2], 39);
+		});
+
+	});
+
+});
+</script>
 	</body>
 </html>
