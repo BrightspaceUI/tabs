@@ -19,6 +19,7 @@ import 'd2l-polymer-behaviors/d2l-id.js';
 import 'd2l-polymer-behaviors/d2l-dom.js';
 import 'd2l-polymer-behaviors/d2l-dom-focus.js';
 import 'd2l-polymer-behaviors/d2l-focusable-arrowkeys-behavior.js';
+import ResizeObserver from 'resize-observer-polyfill/dist/ResizeObserver.es.js';
 import './d2l-tab.js';
 import './d2l-tab-panel.js';
 import './localize-behavior.js';
@@ -90,6 +91,14 @@ $_documentContainer.innerHTML = `<dom-module id="d2l-tabs">
 				margin-left: 4px;
 			}
 
+			/* P2-shadow */
+			:host-context([dir="rtl"]) .d2l-tabs-scroll-previous-container {
+				left: auto;
+				margin-left: 0;
+				margin-right: 4px;
+				right: 0;
+			}
+			/* P1-shady, P2-shady */
 			:host(:dir(rtl)) .d2l-tabs-scroll-previous-container {
 				left: auto;
 				margin-left: 0;
@@ -106,6 +115,14 @@ $_documentContainer.innerHTML = `<dom-module id="d2l-tabs">
 				right: 0;
 			}
 
+			/* P2-shadow */
+			:host-context([dir="rtl"]) .d2l-tabs-scroll-next-container {
+				left: 0;
+				margin-left: 4px;
+				margin-right: 0;
+				right: auto;
+			}
+			/* P1-shady, P2-shady */
 			:host(:dir(rtl)) .d2l-tabs-scroll-next-container {
 				left: 0;
 				margin-left: 4px;
@@ -163,6 +180,12 @@ $_documentContainer.innerHTML = `<dom-module id="d2l-tabs">
 				padding-left: 4px;
 			}
 
+			/* P2-shadow */
+			:host-context([dir="rtl"]) .d2l-tabs-container-ext {
+				padding-left: 0;
+				padding-right: 4px;
+			}
+			/* P1-shady, P2-shady */
 			:host(:dir(rtl)) .d2l-tabs-container-ext {
 				padding-left: 0;
 				padding-right: 4px;
@@ -187,7 +210,7 @@ $_documentContainer.innerHTML = `<dom-module id="d2l-tabs">
 			<slot></slot>
 		</div>
 	</template>
-
+	
 </dom-module>`;
 
 document.head.appendChild($_documentContainer.content);
@@ -298,7 +321,9 @@ Polymer({
 			dom(this.root).querySelector('.d2l-tabs-scroll-next-container button').addEventListener('click', this._handleScrollNext);
 			dom(this.root).querySelector('.d2l-tabs-scroll-previous-container button').addEventListener('click', this._handleScrollPrevious);
 
-			window.addEventListener('resize', this._handleResize);
+			this._resizeObserver = new ResizeObserver(this._handleResize);
+			this._resizeObserver.observe(tabsList);
+
 		}.bind(this));
 	},
 
@@ -315,7 +340,7 @@ Polymer({
 			dom(this).unobserveNodes(this._slotObserver);
 		}
 
-		window.removeEventListener('resize', this._handleResize);
+		if (this._resizeObserver) this._resizeObserver.unobserve(tabsList);
 	},
 
 	_calculateScrollPosition: function(selectedTab, measures) {
