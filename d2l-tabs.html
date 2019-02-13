@@ -7,6 +7,7 @@
 <link rel="import" href="../d2l-polymer-behaviors/d2l-dom.html">
 <link rel="import" href="../d2l-polymer-behaviors/d2l-dom-focus.html">
 <link rel="import" href="../d2l-polymer-behaviors/d2l-focusable-arrowkeys-behavior.html">
+<link rel="import" href="../d2l-resize-observer-polyfill-import/resize-observer.html">
 <link rel="import" href="d2l-tab.html">
 <link rel="import" href="d2l-tab-panel.html">
 <link rel="import" href="localize-behavior.html">
@@ -308,7 +309,9 @@ Polymer-based web components for tabs
 					Polymer.dom(this.root).querySelector('.d2l-tabs-scroll-next-container button').addEventListener('click', this._handleScrollNext);
 					Polymer.dom(this.root).querySelector('.d2l-tabs-scroll-previous-container button').addEventListener('click', this._handleScrollPrevious);
 
-					window.addEventListener('resize', this._handleResize);
+					this._resizeObserver = new ResizeObserver(this._handleResize);
+					this._resizeObserver.observe(tabsList);
+
 				}.bind(this));
 			},
 
@@ -325,7 +328,7 @@ Polymer-based web components for tabs
 					Polymer.dom(this).unobserveNodes(this._slotObserver);
 				}
 
-				window.removeEventListener('resize', this._handleResize);
+				if (this._resizeObserver) this._resizeObserver.unobserve(tabsList);
 			},
 
 			_calculateScrollPosition: function(selectedTab, measures) {
