@@ -41,13 +41,6 @@ $_documentContainer.innerHTML = `<dom-module id="d2l-tab">
 				margin-left: 0;
 			}
 
-			/* P2-shadow */
-			:host-context([dir="rtl"]):host(:first-child) .d2l-tab-text {
-				margin-left: 0.6rem;
-				margin-right: 0;
-			}
-
-			/* P1-shady, P2-shady */
 			:host(:dir(rtl)):first-child .d2l-tab-text {
 				margin-left: 0.6rem;
 				margin-right: 0;
@@ -71,13 +64,6 @@ $_documentContainer.innerHTML = `<dom-module id="d2l-tab">
 				width: calc(100% - 0.6rem);
 			}
 
-			/* P2-shadow */
-			:host-context([dir="rtl"]):host(:first-child) .d2l-tab-selected-indicator {
-				margin-left: 0.6rem;
-				margin-right: 0;
-			}
-
-			/* P1-shady, P2-shady */
 			:host(:dir(rtl)):first-child .d2l-tab-selected-indicator {
 				margin-left: 0.6rem;
 				margin-right: 0;
@@ -112,7 +98,7 @@ $_documentContainer.innerHTML = `<dom-module id="d2l-tab">
 		<div class="d2l-tab-text">[[text]]</div>
 		<div class="d2l-tab-selected-indicator"></div>
 	</template>
-	
+
 </dom-module>`;
 
 document.head.appendChild($_documentContainer.content);

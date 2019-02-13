@@ -91,14 +91,6 @@ $_documentContainer.innerHTML = `<dom-module id="d2l-tabs">
 				margin-left: 4px;
 			}
 
-			/* P2-shadow */
-			:host-context([dir="rtl"]) .d2l-tabs-scroll-previous-container {
-				left: auto;
-				margin-left: 0;
-				margin-right: 4px;
-				right: 0;
-			}
-			/* P1-shady, P2-shady */
 			:host(:dir(rtl)) .d2l-tabs-scroll-previous-container {
 				left: auto;
 				margin-left: 0;
@@ -115,14 +107,6 @@ $_documentContainer.innerHTML = `<dom-module id="d2l-tabs">
 				right: 0;
 			}
 
-			/* P2-shadow */
-			:host-context([dir="rtl"]) .d2l-tabs-scroll-next-container {
-				left: 0;
-				margin-left: 4px;
-				margin-right: 0;
-				right: auto;
-			}
-			/* P1-shady, P2-shady */
 			:host(:dir(rtl)) .d2l-tabs-scroll-next-container {
 				left: 0;
 				margin-left: 4px;
@@ -180,12 +164,6 @@ $_documentContainer.innerHTML = `<dom-module id="d2l-tabs">
 				padding-left: 4px;
 			}
 
-			/* P2-shadow */
-			:host-context([dir="rtl"]) .d2l-tabs-container-ext {
-				padding-left: 0;
-				padding-right: 4px;
-			}
-			/* P1-shady, P2-shady */
 			:host(:dir(rtl)) .d2l-tabs-container-ext {
 				padding-left: 0;
 				padding-right: 4px;
@@ -210,7 +188,7 @@ $_documentContainer.innerHTML = `<dom-module id="d2l-tabs">
 			<slot></slot>
 		</div>
 	</template>
-	
+
 </dom-module>`;
 
 document.head.appendChild($_documentContainer.content);
