@@ -19,6 +19,7 @@ import 'd2l-polymer-behaviors/d2l-id.js';
 import 'd2l-polymer-behaviors/d2l-dom.js';
 import 'd2l-polymer-behaviors/d2l-dom-focus.js';
 import 'd2l-polymer-behaviors/d2l-focusable-arrowkeys-behavior.js';
+import ResizeObserver from 'resize-observer-polyfill/dist/ResizeObserver.es.js';
 import './d2l-tab.js';
 import './d2l-tab-panel.js';
 import './localize-behavior.js';
@@ -298,7 +299,9 @@ Polymer({
 			dom(this.root).querySelector('.d2l-tabs-scroll-next-container button').addEventListener('click', this._handleScrollNext);
 			dom(this.root).querySelector('.d2l-tabs-scroll-previous-container button').addEventListener('click', this._handleScrollPrevious);
 
-			window.addEventListener('resize', this._handleResize);
+			this._resizeObserver = new ResizeObserver(this._handleResize);
+			this._resizeObserver.observe(tabsList);
+
 		}.bind(this));
 	},
 
@@ -315,7 +318,7 @@ Polymer({
 			dom(this).unobserveNodes(this._slotObserver);
 		}
 
-		window.removeEventListener('resize', this._handleResize);
+		if (this._resizeObserver) this._resizeObserver.unobserve(tabsList);
 	},
 
 	_calculateScrollPosition: function(selectedTab, measures) {
