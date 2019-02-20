@@ -243,6 +243,7 @@ Polymer({
 		this._handleResize = this._handleResize.bind(this);
 		this._handleScrollPrevious = this._handleScrollPrevious.bind(this);
 		this._handleScrollNext = this._handleScrollNext.bind(this);
+		this._handleTabTextUpdate = this._handleTabTextUpdate.bind(this);
 	},
 
 	_handleOnBeforeFocus: function(tab) {
