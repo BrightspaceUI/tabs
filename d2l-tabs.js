@@ -243,6 +243,7 @@ Polymer({
 		this._handleResize = this._handleResize.bind(this);
 		this._handleScrollPrevious = this._handleScrollPrevious.bind(this);
 		this._handleScrollNext = this._handleScrollNext.bind(this);
+		this._handleTabTextUpdate = this._handleTabTextUpdate.bind(this);
 	},
 
 	_handleOnBeforeFocus: function(tab) {
@@ -286,6 +287,7 @@ Polymer({
 			var tabsList = this._getTabsContainerList();
 
 			this._slotObserver = dom(this).observeNodes(this._handleDomChanges);
+			this.addEventListener('d2l-tab-panel-text-changed', this._handleTabTextUpdate);
 
 			this.arrowKeyFocusablesContainer = tabsList;
 			this.arrowKeyFocusablesOnBeforeFocus = this._handleOnBeforeFocus;
@@ -317,6 +319,8 @@ Polymer({
 		if (this._slotObserver) {
 			dom(this).unobserveNodes(this._slotObserver);
 		}
+
+		this.removeEventListener('d2l-tab-panel-text-changed', this._handleTabTextUpdate);
 
 		if (this._resizeObserver) this._resizeObserver.unobserve(tabsList);
 	},
@@ -713,6 +717,15 @@ Polymer({
 			}
 		}.bind(this));
 
+	},
+
+	_handleTabTextUpdate: function(e) {
+		var panel = dom(e).rootTarget;
+		var tab = dom(this.root).querySelector(`[aria-controls='${panel.id}']`);
+
+		fastdom.mutate(function() {
+			tab.text = e.detail.text;
+		}.bind(this));
 	},
 
 	_initializeSelectedTab: function(selectedTab) {
