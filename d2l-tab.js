@@ -38,12 +38,12 @@ $_documentContainer.innerHTML = `<dom-module id="d2l-tab">
 			}
 
 			:host(:first-child) .d2l-tab-text {
-				margin-left: var(--d2l-tab-first-child-margin, 0);
+				margin-left: 0;
 			}
 
 			:host(:dir(rtl)):first-child .d2l-tab-text {
 				margin-left: 0.6rem;
-				margin-right: var(--d2l-tab-first-child-margin, 0);
+				margin-right: 0;
 			}
 
 			.d2l-tab-selected-indicator {
@@ -60,13 +60,13 @@ $_documentContainer.innerHTML = `<dom-module id="d2l-tab">
 			}
 
 			:host(:first-child) .d2l-tab-selected-indicator {
-				margin-left: var(--d2l-tab-first-child-margin, 0);;
-				width: calc(100% - 0.6rem - var(--d2l-tab-first-child-margin, 0rem));
+				margin-left: 0;
+				width: calc(100% - 0.6rem);
 			}
 
 			:host(:dir(rtl)):first-child .d2l-tab-selected-indicator {
 				margin-left: 0.6rem;
-				margin-right: var(--d2l-tab-first-child-margin, 0);;
+				margin-right: 0;
 			}
 
 			:host(:hover) {

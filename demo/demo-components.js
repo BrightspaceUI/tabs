@@ -6,11 +6,6 @@ const $_documentContainer = document.createElement('template');
 
 $_documentContainer.innerHTML = `<dom-module id="d2l-demo-templated-tabs">
 	<template strip-whitespace="">
-		<style>
-			d2l-tabs {
-				--d2l-tab-first-child-margin: 1.8rem;
-			}
-		</style>
 		<d2l-tabs>
 			<template items="{{tabs}}" is="dom-repeat">
 				<d2l-tab-panel text="{{item.text}}">{{item.content}} <a href="http://www.google.com">Google</a></d2l-tab-panel>
