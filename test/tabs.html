@@ -185,6 +185,17 @@ describe('<d2l-tabs>', function() {
 			});
 		});
 
+		it('updates the tab title if the tab-panel text is updated', function(done) {
+			var newText = 'Updated';
+			var tabs = tabList._getTabsContainer().querySelectorAll('d2l-tab');
+			var tabPanels = tabList.querySelectorAll('d2l-tab-panel');
+			tabPanels[0].text = newText;
+			requestAnimationFrame(function() {
+				expect(tabs[0].title).to.equal(newText);
+				done();
+			});
+		});
+
 	});
 
 	describe('overflowing tabs', function() {

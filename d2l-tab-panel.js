@@ -68,12 +68,14 @@ Polymer({
 		/**
 		 * Text for the tab.
 		 */
-		text: String
+		text: {
+			type: String,
+			observer: '_updateText'
+		}
 
 	},
 
 	attached: function() {
-		this.setAttribute('aria-label', this.text);
 		if (this.selected) {
 			requestAnimationFrame(function() {
 				this._dispatchSelected();
@@ -91,6 +93,13 @@ Polymer({
 		if (newValue) {
 			this._dispatchSelected();
 		}
+	},
+
+	_updateText: function() {
+		this.setAttribute('aria-label', this.text);
+		this.dispatchEvent(new CustomEvent(
+			'd2l-tab-panel-text-changed', { bubbles: true, composed: true, detail: { text: this.text } }
+		));
 	}
 
 });
