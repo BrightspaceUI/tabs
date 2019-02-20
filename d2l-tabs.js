@@ -720,7 +720,7 @@ Polymer({
 
 	_handleTabTextUpdate: function(e) {
 		var panel = dom(e).rootTarget;
-		var tab = dom(this.root).querySelector('[aria-controls="' + panel.id + '"]');
+		var tab = dom(this.root).querySelector(`[aria-controls='${panel.id}']`);
 
 		fastdom.mutate(function() {
 			tab.text = e.detail.text;
