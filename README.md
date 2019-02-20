@@ -83,6 +83,10 @@ Alternatively, `d2l-tab` and `d2l-tab-panel` can be specified with `dom-repeat`.
 </d2l-tabs>
 ```
 
+#### CSS properties
+
+You can override the amount the first tab is indented by setting the `--d2l-tab-first-child-margin` css variable.  Otherwise, the tab will have no left margin to align with other headings/elements.
+
 #### Events
 
 The `d2l-tab` component dispatches the `d2l-tab-panel-selected` event when the tab is activated.
