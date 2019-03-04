@@ -325,6 +325,10 @@ Polymer({
 		if (this._resizeObserver) this._resizeObserver.unobserve(tabsList);
 	},
 
+	resize: function() {
+		return this._handleResize();
+	},
+
 	_calculateScrollPosition: function(selectedTab, measures) {
 
 		var selectedTabIndex = this._tabs.indexOf(selectedTab);
@@ -560,7 +564,7 @@ Polymer({
 	},
 
 	_handleResize: function() {
-		this._updateMeasures().then(function() {
+		return this._updateMeasures().then(function() {
 			return this._getMeasures();
 		}.bind(this)).then(function(measures) {
 			return this._updateScrollVisibility(measures);
