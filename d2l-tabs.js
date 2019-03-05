@@ -860,6 +860,11 @@ Polymer({
 				var tabsContainer = this._getTabsContainer();
 
 				var lastTabMeasures = measures.tabRects[measures.tabRects.length - 1];
+				if (!lastTabMeasures) {
+					resolve();
+					return;
+				}
+
 				if (!measures.isRTL) {
 
 					// show/hide previous/left scroll button
