@@ -860,7 +860,12 @@ Polymer({
 				var tabsContainer = this._getTabsContainer();
 
 				var lastTabMeasures = measures.tabRects[measures.tabRects.length - 1];
-				if (lastTabMeasures && !measures.isRTL) {
+				if (!lastTabMeasures) {
+					resolve();
+					return;
+				}
+
+				if (!measures.isRTL) {
 
 					// show/hide previous/left scroll button
 					if (this._translationValue < 0 && !tabsContainer.hasAttribute('allow-scroll-previous')) {
@@ -876,7 +881,7 @@ Polymer({
 						tabsContainer.removeAttribute('allow-scroll-next');
 					}
 
-				} else if (lastTabMeasures) {
+				} else {
 
 					// show/hide previous/left scroll button (rtl)
 					if (this._translationValue > 0 && !tabsContainer.hasAttribute('allow-scroll-previous')) {
