@@ -8,12 +8,12 @@ $_documentContainer.innerHTML = `<dom-module id="d2l-demo-templated-tabs">
 	<template strip-whitespace="">
 		<d2l-tabs>
 			<template items="{{tabs}}" is="dom-repeat">
-				<d2l-tab-panel text="{{item.text}}">{{item.content}}<a href="http://www.google.com">google</a></d2l-tab-panel>
+				<d2l-tab-panel text="{{item.text}}">{{item.content}} <a href="http://www.google.com">Google</a></d2l-tab-panel>
 			</template>
-			<d2l-button-subtle slot="ext" text="Search" icon="d2l-tier1:search"></d2l-button-subtle>
+			<d2l-button-subtle text="Change title" on-click="changeText"></d2l-button-subtle>
 		</d2l-tabs>
 	</template>
-	
+
 </dom-module>`;
 
 document.head.appendChild($_documentContainer.content);
@@ -21,10 +21,13 @@ Polymer({
 	is: 'd2l-demo-templated-tabs',
 	ready: function() {
 		this.tabs = [
-			{text: 'Winter 17', content: 'content for winter 2017'},
-			{text: 'Summer 18', content: 'content for summer 2018'},
-			{text: 'Fall 18', content: 'content for fall 2018'},
-			{text: 'All', content: 'content for all'}
+			{text: 'Winter 17', content: 'Content for winter 2017'},
+			{text: 'Summer 18', content: 'Content for summer 2018'},
+			{text: 'Fall 18', content: 'Content for fall 2018'},
+			{text: 'All', content: 'Content for all'}
 		];
+	},
+	changeText: function() {
+		this.set(`tabs.${Math.floor(Math.random() * 4)}.text`, 'Tab Name Changed');
 	}
 });

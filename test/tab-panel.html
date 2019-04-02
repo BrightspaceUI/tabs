@@ -36,6 +36,12 @@ describe('<d2l-tab-panel>', function() {
 		expect(panel.getAttribute('aria-label')).to.equal(panel.text);
 	});
 
+	it('updates the aria-label if the text updates', function() {
+		var newText = 'Updated';
+		panel.text = newText;
+		expect(panel.getAttribute('aria-label')).to.equal(newText);
+	});
+
 	it('has default whitespace at top and bottom or panel', function() {
 		expect(getComputedStyle(panel, null).getPropertyValue('margin-top')).to.not.equal('0px');
 		expect(getComputedStyle(panel, null).getPropertyValue('margin-right')).to.equal('0px');
