@@ -499,7 +499,7 @@ Polymer({
 
 			for (var i = 0; i < info.removedNodes.length; i++) {
 				var removedNode = info.removedNodes[i];
-				if (removedNode.tagName === 'D2L-TAB-PANEL' && removedNode.id.length > 0) {
+				if (removedNode.nodeType === 1 && removedNode.getAttribute('role') === 'tabpanel' && removedNode.id.length > 0) {
 					var tabToRemove = dom(this.root).querySelector('[aria-controls="' + removedNode.id + '"]');
 					tabToRemove.parentNode.removeChild(tabToRemove);
 				}
@@ -509,9 +509,9 @@ Polymer({
 			var selectedTab;
 
 			for (var j = 0; j < info.addedNodes.length; j++) {
-				if (info.addedNodes[j].tagName === 'D2L-TAB-PANEL') {
+				var panel = info.addedNodes[j];
 
-					var panel = info.addedNodes[j];
+				if (panel.nodeType === 1 && panel.getAttribute('role') === 'tabpanel') {
 					if (panel.id.length === 0) {
 						panel.id = D2L.Id.getUniqueId();
 					}
