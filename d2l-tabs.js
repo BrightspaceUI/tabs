@@ -729,6 +729,7 @@ Polymer({
 
 		fastdom.mutate(function() {
 			tab.text = e.detail.text;
+			this._handleResize();
 		}.bind(this));
 	},
 
