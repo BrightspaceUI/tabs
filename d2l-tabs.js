@@ -706,7 +706,7 @@ Polymer({
 		e.stopPropagation();
 
 		var selectedTab = dom(e).rootTarget;
-		var selectedPanel = this.querySelector('#' + selectedTab.getAttribute('aria-controls'));
+		var selectedPanel = this._getTabPanel(selectedTab.getAttribute('aria-controls'));
 
 		this._updateScrollPosition(selectedTab);
 
@@ -716,11 +716,21 @@ Polymer({
 				var tab = this._tabs[i];
 				if (tab.selected && tab !== selectedTab) {
 					tab.selected = false;
-					this.querySelector('#' + tab.getAttribute('aria-controls')).selected = false;
+					this._getTabPanel(tab.getAttribute('aria-controls')).selected = false;
 				}
 			}
 		}.bind(this));
 
+	},
+
+	_getTabPanel: function(id) {
+		var panels = this.getEffectiveChildren();
+
+		for (var i = 0; i < panels.length; i++) {
+			if (panels[i].nodeType === 1 && panels[i].getAttribute('role') === 'tabpanel' && panels[i].id === id) {
+				return panels[i];
+			}
+		}
 	},
 
 	_handleTabTextUpdate: function(e) {
