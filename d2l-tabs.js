@@ -426,7 +426,7 @@ Polymer({
 	_getComputedBackgroundColor: function() {
 		var bgColor = null;
 		D2L.Dom.findComposedAncestor(this, function(node) {
-			if (!node || node.nodeType !== 1) return false;
+			if (!node || node.nodeType !== Node.ELEMENT_NODE) return false;
 			var nodeColor = getComputedStyle(node, null)['backgroundColor'];
 			if (nodeColor === 'rgba(0, 0, 0, 0)' || nodeColor === 'transparent') return false;
 			bgColor = nodeColor;
@@ -499,7 +499,7 @@ Polymer({
 
 			for (var i = 0; i < info.removedNodes.length; i++) {
 				var removedNode = info.removedNodes[i];
-				if (removedNode.tagName === 'D2L-TAB-PANEL' && removedNode.id.length > 0) {
+				if (removedNode.nodeType === Node.ELEMENT_NODE && removedNode.getAttribute('role') === 'tabpanel' && removedNode.id.length > 0) {
 					var tabToRemove = dom(this.root).querySelector('[aria-controls="' + removedNode.id + '"]');
 					tabToRemove.parentNode.removeChild(tabToRemove);
 				}
@@ -509,9 +509,9 @@ Polymer({
 			var selectedTab;
 
 			for (var j = 0; j < info.addedNodes.length; j++) {
-				if (info.addedNodes[j].tagName === 'D2L-TAB-PANEL') {
+				var panel = info.addedNodes[j];
 
-					var panel = info.addedNodes[j];
+				if (panel.nodeType === Node.ELEMENT_NODE && panel.getAttribute('role') === 'tabpanel') {
 					if (panel.id.length === 0) {
 						panel.id = D2L.Id.getUniqueId();
 					}
@@ -706,7 +706,7 @@ Polymer({
 		e.stopPropagation();
 
 		var selectedTab = dom(e).rootTarget;
-		var selectedPanel = this.querySelector('#' + selectedTab.getAttribute('aria-controls'));
+		var selectedPanel = this._getTabPanel(selectedTab.getAttribute('aria-controls'));
 
 		this._updateScrollPosition(selectedTab);
 
@@ -716,11 +716,21 @@ Polymer({
 				var tab = this._tabs[i];
 				if (tab.selected && tab !== selectedTab) {
 					tab.selected = false;
-					this.querySelector('#' + tab.getAttribute('aria-controls')).selected = false;
+					this._getTabPanel(tab.getAttribute('aria-controls')).selected = false;
 				}
 			}
 		}.bind(this));
 
+	},
+
+	_getTabPanel: function(id) {
+		var panels = this.getEffectiveChildren();
+
+		for (var i = 0; i < panels.length; i++) {
+			if (panels[i].nodeType === Node.ELEMENT_NODE && panels[i].getAttribute('role') === 'tabpanel' && panels[i].id === id) {
+				return panels[i];
+			}
+		}
 	},
 
 	_handleTabTextUpdate: function(e) {
@@ -729,6 +739,7 @@ Polymer({
 
 		fastdom.mutate(function() {
 			tab.text = e.detail.text;
+			this._handleResize();
 		}.bind(this));
 	},
 

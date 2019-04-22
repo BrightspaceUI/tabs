@@ -12,7 +12,9 @@
 		<script type="module" src="../../d2l-button/d2l-button-subtle.js"></script>
 		<script type="module" src="../../d2l-icons/tier1-icons.js"></script>
 		<script type="module" src="../d2l-tabs.js"></script>
-		<script type="module" src="./demo-components.js"></script>
+		<script type="module" src="./d2l-demo-templated-tabs.js"></script>
+		<script type="module" src="./d2l-demo-tabs-wrapper.js"></script>
+		<script type="module" src="./d2l-demo-tab-panel.js"></script>
 		<!-- FIXME(polymer-modulizer):
 		These imperative modules that innerHTML your HTML are
 		a hacky way to be sure that any mixins in included style
@@ -161,19 +163,26 @@ $_documentContainer.innerHTML = `<div class="vertical-section-container centered
 				</template>
 			</demo-snippet>
 
+			<h3>Wrapping Tabs in Custom Components</h3>
+
+			<demo-snippet>
+				<template>
+					<d2l-demo-tabs-wrapper>
+						<d2l-demo-tab-panel text="Biology">Tab content for Biology</d2l-demo-tab-panel>
+						<d2l-demo-tab-panel text="Chemistry">Tab content for Chemistry</d2l-demo-tab-panel>
+						<d2l-demo-tab-panel text="Earth Sciences">Tab content for Earth Sciences</d2l-demo-tab-panel>
+						<d2l-demo-tab-panel text="Physics">Tab content for Physics</d2l-demo-tab-panel>
+						<d2l-demo-tab-panel text="Math">Tab content for Math</d2l-demo-tab-panel>
+					</d2l-demo-tabs-wrapper>
+				</template>
+			</demo-snippet>
+
 		</div>`;
 
 document.body.appendChild($_documentContainer.content);
 </script>
 		<script type="module">
-import '@polymer/polymer/polymer-legacy.js';
-import '@polymer/iron-demo-helpers/demo-pages-shared-styles.js';
-import '@polymer/iron-demo-helpers/demo-snippet.js';
-import 'd2l-typography/d2l-typography.js';
-import 'd2l-button/d2l-button-subtle.js';
-import 'd2l-icons/tier1-icons.js';
-import '../d2l-tabs.js';
-import './demo-components.js';
+
 document.body.addEventListener('d2l-tab-panel-selected', function(e) {
 	// eslint-disable-next-line no-console
 	console.log('tab selected!', e);
