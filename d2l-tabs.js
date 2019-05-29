@@ -156,8 +156,7 @@ $_documentContainer.innerHTML = `<dom-module id="d2l-tabs">
 			}
 
 			.d2l-tabs-scroll-button:focus {
-				border-color: rgba(0, 111, 191, 0.4);
-				box-shadow: 0 0 0 4px rgba(0, 111, 191, 0.3);
+				border-color: var(--d2l-color-celestine);
 			}
 
 			.d2l-tabs-container-ext {
