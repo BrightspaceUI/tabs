@@ -69,6 +69,15 @@ $_documentContainer.innerHTML = `<dom-module id="d2l-tab">
 				margin-right: 0;
 			}
 
+			:host(:focus) {
+				color: var(--d2l-color-celestine);
+				text-decoration: underline;
+			}
+
+			:host([aria-selected="true"]:focus) {
+				text-decoration: none;
+			}
+
 			:host(:hover) {
 				color: var(--d2l-color-celestine);
 				cursor: pointer;
@@ -79,20 +88,13 @@ $_documentContainer.innerHTML = `<dom-module id="d2l-tab">
 				cursor: default;
 			}
 
-			:host(:focus) .d2l-tab-selected-indicator {
+			:host([aria-selected="true"]) .d2l-tab-selected-indicator {
 				display: block;
-				border-top-color: rgba(0, 111, 191, 0.4);
-				box-shadow: none;
-				transition: border-top-color 0.2s, box-shadow 0.2s;
 			}
 
 			:host([aria-selected="true"]:focus) .d2l-tab-selected-indicator {
 				border-top-color: var(--d2l-color-celestine);
 				box-shadow: 0 0 0 1px #ffffff, 0 0 0 2px var(--d2l-color-celestine);
-			}
-
-			:host([aria-selected="true"]) .d2l-tab-selected-indicator {
-				display: block;
 			}
 
 		</style>
