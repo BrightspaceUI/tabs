@@ -499,7 +499,7 @@ Polymer({
 			for (var i = 0; i < info.removedNodes.length; i++) {
 				var removedNode = info.removedNodes[i];
 				if (removedNode.nodeType === Node.ELEMENT_NODE && removedNode.getAttribute('role') === 'tabpanel' && removedNode.id.length > 0) {
-					var tabToRemove = dom(this.root).querySelector('[aria-controls="' + removedNode.id + '"]');
+					var tabToRemove = dom(this.root).querySelector('[controls-panel="' + removedNode.id + '"]');
 					tabToRemove.parentNode.removeChild(tabToRemove);
 				}
 			}
@@ -518,7 +518,9 @@ Polymer({
 					var panelIndex = panels.indexOf(panel);
 
 					var tab = document.createElement('d2l-tab');
-					tab.setAttribute('aria-controls', panel.id);
+					/* TODO: change controls-panel to aria-controls once it can be wired up
+					correctly with AOM or element internals */
+					tab.setAttribute('controls-panel', panel.id);
 					tab.selected = panel.selected;
 					tab.text = panel.text;
 					if (tab.selected) selectedTab = tab;
@@ -694,7 +696,7 @@ Polymer({
 
 	_handleTabPanelSelected: function(e) {
 		var panel = dom(e).rootTarget;
-		var tab = dom(this.root).querySelector('[aria-controls="' + panel.id + '"]');
+		var tab = dom(this.root).querySelector('[controls-panel="' + panel.id + '"]');
 		if (tab) {
 			tab.selected = true;
 		}
@@ -705,7 +707,7 @@ Polymer({
 		e.stopPropagation();
 
 		var selectedTab = dom(e).rootTarget;
-		var selectedPanel = this._getTabPanel(selectedTab.getAttribute('aria-controls'));
+		var selectedPanel = this._getTabPanel(selectedTab.getAttribute('controls-panel'));
 
 		this._updateScrollPosition(selectedTab);
 
@@ -715,7 +717,7 @@ Polymer({
 				var tab = this._tabs[i];
 				if (tab.selected && tab !== selectedTab) {
 					tab.selected = false;
-					this._getTabPanel(tab.getAttribute('aria-controls')).selected = false;
+					this._getTabPanel(tab.getAttribute('controls-panel')).selected = false;
 				}
 			}
 		}.bind(this));
@@ -734,7 +736,7 @@ Polymer({
 
 	_handleTabTextUpdate: function(e) {
 		var panel = dom(e).rootTarget;
-		var tab = dom(this.root).querySelector(`[aria-controls='${panel.id}']`);
+		var tab = dom(this.root).querySelector(`[controls-panel='${panel.id}']`);
 
 		fastdom.mutate(function() {
 			tab.text = e.detail.text;
