@@ -128,8 +128,8 @@ npm test
 
 [bower-url]: http://bower.io/search/?q=d2l-tabs
 [bower-image]: https://badge.fury.io/bo/d2l-tabs.svg
-[ci-url]: https://travis-ci.org/BrightspaceUI/tabs
-[ci-image]: https://travis-ci.org/BrightspaceUI/tabs.svg?branch=master
+[ci-url]: https://travis-ci.com/BrightspaceUI/tabs
+[ci-image]: https://travis-ci.com/BrightspaceUI/tabs.svg?branch=master
 
 ## Versioning & Releasing
 
