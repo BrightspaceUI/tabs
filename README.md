@@ -1,6 +1,6 @@
 # d2l-tabs
 [![Published on webcomponents.org](https://img.shields.io/badge/webcomponents.org-published-blue.svg)](https://www.webcomponents.org/element/BrightspaceUI/tabs)
-[![Bower version][bower-image]][bower-url]
+[![Current version][github-image]][github-url]
 [![Build status][ci-image]][ci-url]
 
 A [Polymer](https://www.polymer-project.org/)-based web component for tabs.
@@ -9,9 +9,9 @@ A [Polymer](https://www.polymer-project.org/)-based web component for tabs.
 
 ## Installation
 
-`d2l-tabs` can be installed from [Bower][bower-url]:
+`d2l-tabs` can be installed using [npm][npm-url]:
 ```shell
-bower install d2l-tabs
+npm i --save BrightspaceUI/d2l-tabs
 ```
 
 ## Usage
@@ -126,10 +126,11 @@ To lint AND run local unit tests:
 npm test
 ```
 
-[bower-url]: http://bower.io/search/?q=d2l-tabs
-[bower-image]: https://badge.fury.io/bo/d2l-tabs.svg
+[github-url]: https://github.com/BrightspaceUI/tabs
+[github-image]: https://badge.fury.io/gh/BrightspaceUI%2Ftabs.svg
 [ci-url]: https://travis-ci.com/BrightspaceUI/tabs
 [ci-image]: https://travis-ci.com/BrightspaceUI/tabs.svg?branch=master
+[npm-url]: https://www.npmjs.com/
 
 ## Versioning & Releasing
 
