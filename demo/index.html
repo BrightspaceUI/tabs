@@ -8,6 +8,8 @@
 		<script type="module" src="../../@polymer/polymer/polymer-legacy.js"></script>
 		<script type="module" src="../../@polymer/iron-demo-helpers/demo-pages-shared-styles.js"></script>
 		<script type="module" src="../../@polymer/iron-demo-helpers/demo-snippet.js"></script>
+		<script type="module" src="../../@brightspace-ui/core/components/dropdown/dropdown.js"></script>
+		<script type="module" src="../../@brightspace-ui/core/components/dropdown/dropdown-tabs.js"></script>
 		<script type="module" src="../../d2l-typography/d2l-typography.js"></script>
 		<script type="module" src="../../d2l-button/d2l-button-subtle.js"></script>
 		<script type="module" src="../../d2l-icons/tier1-icons.js"></script>
@@ -15,6 +17,7 @@
 		<script type="module" src="./d2l-demo-templated-tabs.js"></script>
 		<script type="module" src="./d2l-demo-tabs-wrapper.js"></script>
 		<script type="module" src="./d2l-demo-tab-panel.js"></script>
+		<script type="module" src="./d2l-demo-dropdown-tabs.js"></script>
 		<!-- FIXME(polymer-modulizer):
 		These imperative modules that innerHTML your HTML are
 		a hacky way to be sure that any mixins in included style
@@ -174,6 +177,45 @@ $_documentContainer.innerHTML = `<div class="vertical-section-container centered
 						<d2l-demo-tab-panel text="Physics">Tab content for Physics</d2l-demo-tab-panel>
 						<d2l-demo-tab-panel text="Math">Tab content for Math</d2l-demo-tab-panel>
 					</d2l-demo-tabs-wrapper>
+				</template>
+			</demo-snippet>
+
+			<!--
+				This demo should be moved to the dropdown demos when ported to Lit.
+				It was added here because d2l-dropdown-tabs was ported to Lit before
+				d2l-tabs and the demo pages for d2l-dropdown-tabs use d2l-tabs.
+			-->
+			<h3>Tabs (dropdown)</h3>
+
+			<demo-snippet>
+				<template>
+					<d2l-dropdown>
+						<button class="d2l-dropdown-opener">Open it!</button>
+						<d2l-dropdown-tabs min-width="175" max-width="300">
+							<d2l-tabs>
+								<d2l-tab-panel text="first">first content</d2l-tab-panel>
+								<d2l-tab-panel text="second">
+									<p>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</p>
+								</d2l-tab-panel>
+								<d2l-tab-panel text="third">third content</d2l-tab-panel>
+								<d2l-tab-panel text="fourth">fourth content</d2l-tab-panel>
+								<d2l-tab-panel text="fith">fith content</d2l-tab-panel>
+							</d2l-tabs>
+						</d2l-dropdown-tabs>
+					</d2l-dropdown>
+				</template>
+			</demo-snippet>
+
+			<!--
+				This demo should be moved to the dropdown demos when ported to Lit.
+				It was added here because d2l-dropdown-tabs was ported to Lit before
+				d2l-tabs and the demo pages for d2l-dropdown-tabs use d2l-tabs.
+			-->
+			<h3>Tabs (dropdown nested menu)</h3>
+
+			<demo-snippet>
+				<template>
+					<d2l-demo-dropdown-tabs></d2l-demo-dropdown-tabs>
 				</template>
 			</demo-snippet>
 
