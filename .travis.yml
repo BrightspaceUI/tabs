@@ -1,19 +1,13 @@
 language: node_js
 node_js: node
-addons:
-  chrome: stable
 script:
-- npm run lint
+- npm run test
 - |
-  if [ $TRAVIS_PULL_REQUEST != false ] && [ $TRAVIS_SECURE_ENV_VARS == true ]; then
-    echo "Pull request with secure environment variables, running Sauce tests...";
-    npm run test:polymer:sauce || travis_terminate 1;
-  else
-    echo "Not a pull request and/or no secure environment variables, running headless tests...";
-    npm run test:polymer:local || travis_terminate 1;
+  if [ $TRAVIS_BRANCH == "master" ] && [ $TRAVIS_PULL_REQUEST == false ] && [ $TRAVIS_EVENT_TYPE != "cron" ]; then
+    echo "Not a Pull Request and on branch master so bumping version";
+    frauci-update-version;
+    export TRAVIS_TAG=$(frauci-get-version)
   fi
-after_success:
-- frauci-update-version -d=skip && export TRAVIS_TAG=$(frauci-get-version)
 deploy:
   provider: releases
   api_key: "$GITHUB_RELEASE_TOKEN"
@@ -23,8 +17,5 @@ env:
   global:
   - OWNER_NAME=BrightspaceUI
   - REPO_NAME=tabs
-  - SAUCE_USERNAME: Desire2Learn
   # GITHUB_RELEASE_TOKEN
   - secure: H2r38DKESAlhvM07Wnip7fo7Hbh7SDOzwYrPdlc/pmyrFoEOdqZ/yovYWCZbNu4B65gI5k2yUXnDCVmbDU4JgtIjSJNcX9/2wg7OwIVBx2km5PKQwP9W3sUmuPAl0WLAbqh63DP/TH0I0xo9Bep7PvdkLPBccpdQu3Xo279kJcqH30l5BJX+fmICmIpvX3Cj5s7ujkImE341H4I7yRrWV7eZgy0DPME5L/xsXt7b/5ZKb6I2sCvmt1P2v8ChB8IZSNlunWPAe70IH8xFVZuMOb4frutW2PZ2ttqYLqra8RhRhFvE7ynq6XhMPAg9ka4D1pxfkvo1RfVg7E5/Vhp7ypM2bGJmjlskMnjiCMtMQ5rD4Y6P8YeNzGXg55cua55a0EmcbhKe8ITHN6PHcfEF55b8+TnztJ+pLfXWYTl6LYX1vhzKnAivqMAHcGSJSlpQMJ0rpIIwYvKdq6/x+KkZihamrVSIOKla0gJgbuCQQB2abVWV+/n+B7DVJaFjyjDLrXc6++w8KPFj3JaIqAjKDSv13UtQ/yQ7BzWYRYsQJLIui2Wn/A9DfHhkUNrjlSfCfdB3k1gMNOHVVv5uZGmp3/Z6kv57jR9IJedRdJxRS/FP/T8784wsIslUBimX2/LDDOmf8aZetcYXQ3jsNOiNjETxb15y0tSYdDAWslEqp/M=
-  # SAUCE_ACCESS_KEY
-  - secure: Oj34AUS8URaIUCNgBEtgjqpXi3VZj+0etqPF4feJhxHexGaRczpDkhnAsSnZO2NQwVZvGe9yhKwV0baIdOl0ama8XB2gMRApIsXMnTGgl1VBhvNkjxPMxS28jOoK/35hohQ00LfVu0UyHm6GCAJuhpgaBX8Hhj/oGbS5PCNR5Wj5vaHpU83ncv3ZcEmUg6AqKP3jN1AataQjNqYmq0eswl1ezoPN4NoMqoi9/vIowRUt9sr5RvgbaPqQqlvT14ezKLgcLA3xqZCpLYwm3+hhvIMuf5wXSgGsZ5KlHC8l0mglmVuh/3l+nSAf5uMwkeZ31/bjRY8xj/HT0PjGAT+i9gDOhRyBlJSDPqhpdwIzxTstJebYm270kz4S3NHk8AITvfo6KAdC3vz0oEvyaFB3z9r+AuZXf+7XlG+eETrIJayrkbTXglKM1tGAXKSGeWvfrgTgvIcsrs+X8V9Rtk2jzuxDAPeQ82ulRBsQxQLvX9dp+dQ76kLQ6sEoFGTzVfg0wwDyOwWuAx4V/GD/6ObxThC1WVSkghJSHTU8FJhJVAb6uiLmEopusi1im8Wu9+9DMuR5iG1FlbuzYulXAcimhxYaP707Hhq+NHEOsjWloXV8uhb6ktD90/j6p3wWDgmcxm8G43sYht19xqEfVpl09+9Z2lDuIgOw2Aq46uZbdc8=
