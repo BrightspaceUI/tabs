@@ -31,7 +31,7 @@
   },
   "main": "d2l-tabs.js",
   "dependencies": {
-    "@brightspace-ui/core": "^1.38.0",
+    "@brightspace-ui/core": "^1.40.0",
     "@polymer/polymer": "^3.0.0"
   }
 }
