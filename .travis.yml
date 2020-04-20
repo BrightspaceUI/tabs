@@ -5,7 +5,7 @@ script:
 - |
   if [ $TRAVIS_BRANCH == "master" ] && [ $TRAVIS_PULL_REQUEST == false ] && [ $TRAVIS_EVENT_TYPE != "cron" ]; then
     echo "Not a Pull Request and on branch master so bumping version";
-    frauci-update-version;
+    frauci-update-version -d=skip;
     export TRAVIS_TAG=$(frauci-get-version)
   fi
 deploy:
