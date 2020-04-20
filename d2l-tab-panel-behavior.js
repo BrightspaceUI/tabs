@@ -1,4 +1,6 @@
 import '@polymer/polymer/polymer-legacy.js';
+import { getUniqueId } from '@brightspace-ui/core/helpers/uniqueId.js';
+
 const $_documentContainer = document.createElement('template');
 
 $_documentContainer.innerHTML = `<dom-module id="d2l-tab-panel-styles">
@@ -61,6 +63,11 @@ D2L.PolymerBehaviors.Tabs.TabPanelBehavior = {
 			observer: '_updateText'
 		}
 
+	},
+
+	ready: function() {
+		this.id = getUniqueId();
+		this.role = 'tabpanel';
 	},
 
 	attached: function() {

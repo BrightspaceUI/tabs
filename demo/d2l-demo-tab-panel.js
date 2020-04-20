@@ -1,5 +1,5 @@
 import '@polymer/polymer/polymer-legacy.js';
-import 'd2l-button/d2l-button-subtle.js';
+import '/node_modules/@brightspace-ui/core/components/button/button.js';
 import '../d2l-tab-panel-behavior.js';
 import { Polymer } from '@polymer/polymer/lib/legacy/polymer-fn.js';
 const $_documentContainer = document.createElement('template');
@@ -9,7 +9,8 @@ $_documentContainer.innerHTML = `<dom-module id="d2l-demo-tab-panel">
 		<style include="d2l-tab-panel-styles">
 			div {
 				border: solid 1px blue;
-			} span {
+			}
+			span {
 				color: blue;
 			}
 		</style>
@@ -17,7 +18,7 @@ $_documentContainer.innerHTML = `<dom-module id="d2l-demo-tab-panel">
 		<div>
 			<slot></slot>
 			<br>
-			<d2l-button-subtle text="Change title" on-click="changeText"></d2l-button-subtle>
+			<d2l-button on-click="changeText">Change title</d2l-button>
 		</div>
 	</template>
 
